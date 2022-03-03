@@ -1,0 +1,8 @@
+# deps
+/node_modules
+
+# intellij
+.idea/
+
+# we use yarn
+.package-lock.json

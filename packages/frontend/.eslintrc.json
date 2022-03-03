@@ -1,0 +1,7 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    // turn off for now until bug is patched
+    "react/jsx-key": "off"
+  }
+}

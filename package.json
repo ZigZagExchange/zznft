@@ -1,0 +1,15 @@
+{
+  "name": "@zznft/monorepo",
+  "version": "1.0.0",
+  "description": "an nft marketplace on zksync",
+  "main": "index.js",
+  "repository": "git@github.com:ZigZagExchange/zznft.git",
+  "author": "Caleb Carithers <calebcarithers@me.com>",
+  "license": "MIT",
+  "workspaces": ["packages/*"],
+  "private": "true",
+  "scripts": {
+    "ui:start": "yarn workspace @zznft/frontend run dev",
+    "playroom:start": "yarn workspace @zznft/frontend run playroom:start"
+  }
+}
