@@ -1,72 +1,136 @@
-import {useAccount, useConnect} from "wagmi";
-import * as RadixDialog from "@radix-ui/react-dialog";
-import classNames from "classnames";
-import React, {useState} from "react";
-import Button from "../Button/Button";
-import * as RadixDropdown from "@radix-ui/react-dropdown-menu";
+import {useAccount, useConnect, useNetwork, useSigner} from "wagmi";
+import React, {useEffect, useState} from "react";
+import Button, {ButtonSize, ButtonType} from "../Button/Button";
 import Link from "next/link";
+import {abbreviate} from "../../helpers/strings";
+import {css} from "../../helpers/css";
+import Modal from "../Modal/Modal";
+import {connectorIds, connectorImageSrcMap} from "../../services/wagmi";
+import Image from "next/image"
+import {debugToast, errorToast} from "../Toast/toast";
+import Dropdown from "../Dropdown/Dropdown";
+import {useStore} from "../../store/App.store";
+import {observer} from "mobx-react";
 
-const ConnectWallet = () => {
-  const [{data}] = useAccount({fetchEns: true})
+const ConnectWallet = observer(() => {
+  const targetChainId = Number(process.env.NEXT_PUBLIC_ETHEREUM_TARGET_CHAIN)
+  const [{data: accountData}, disconnect] = useAccount()
+  const [{data: signer}] = useSigner()
+  const [{data: networkData}, changeNetwork] = useNetwork()
+  const [{loading}] = useConnect()
+  const store = useStore()
+
+  useEffect(() => {
+    const getZkWallet = async () => {
+      try {
+        await store.zk.connect(signer!)
+      } catch (e) {
+        console.error("debug:: error connecting to zksync wallet", e)
+        errorToast("Could not get zkWallet")
+        disconnect()
+        store.zk.disconnect()
+      }
+    }
+
+    if (signer && networkData.chain?.id === targetChainId) {
+      console.log("debug:: hit 1", signer, networkData.chain?.id, targetChainId, loading)
+      if (store.zk.wallet?.address() !== accountData?.address) {
+        console.log("debug:: hit 2", store.zk.wallet?.address(), accountData?.address, loading)
+        getZkWallet()
+      }
+    }
+  }, [signer, accountData?.address, networkData.chain?.id])
+
+  // force connecting to the correct chain
+  useEffect(() => {
+    const syncChainToTarget = async () => {
+      if (changeNetwork) {
+        try {
+          const {error} = await changeNetwork(targetChainId)
+          if (error) {
+            console.log("debug:: changeNetwork hit", error)
+            throw Error()
+          }
+        } catch (e) {
+          errorToast("Please reconnect on correct chain")
+          disconnect()
+          store.zk.disconnect()
+        }
+      } else {
+        errorToast("Please reconnect on correct chain")
+        disconnect()
+        store.zk.disconnect()
+      }
+    }
+
+    if (networkData.chain && networkData.chain?.id !== targetChainId) {
+      syncChainToTarget()
+    }
+  }, [networkData.chain?.id])
+
   return <>
-    {data && <WalletConnected/>}
-    {!data && <ConnectWalletButton/>}
+    {loading ? <div>loading</div> : null}
+    {accountData && <WalletConnected/>}
+    {!accountData && <ConnectWalletButton/>}
   </>
-}
+})
 
 const ConnectWalletButton = () => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [{data: connectData, error: connectError}, connect] = useConnect()
-
-  return <RadixDialog.Root open={modalOpen} onOpenChange={() => setModalOpen(!modalOpen)}>
-    <RadixDialog.Trigger asChild>
-      <Button onClick={() => setModalOpen(true)}>connect</Button>
-    </RadixDialog.Trigger>
-    <RadixDialog.Portal>
-      <RadixDialog.Overlay className={classNames("fixed", "bg-green-50")}/>
-      <RadixDialog.Content
-        style={{transform: "translate(-50%, -50%)"}}
-        className={classNames("bg-white", "rounded-sm", "top-1/2", "left-1/2", "fixed")}>
-        <RadixDialog.Title>Connect Wallet</RadixDialog.Title>
-        <RadixDialog.Description>Connect that shit yo</RadixDialog.Description>
-        <div className={classNames("flex", "flex-col")}>
-          {connectData.connectors.map((connector) => <Button onClick={() => {
-            connect(connector).then(() => setModalOpen(false))
-          }}>
-            <div key={connector.id}>
-              {connector.name}
-              {!connector.ready && <span className={classNames("text-red-600")}>unsupported</span>}
-            </div>
-          </Button>)}
-        </div>
-        {connectError && <div>{connectError.message ?? "Failed to Connect"}</div>}
-        <RadixDialog.Close>close</RadixDialog.Close>
-      </RadixDialog.Content>
-    </RadixDialog.Portal>
-  </RadixDialog.Root>
+  const [{data}, connect] = useConnect()
+  return <>
+    <Button onClick={() => setModalOpen(true)}>connect</Button>
+    <Modal open={modalOpen} onChange={(value) => setModalOpen(value)} title={"Connect Wallet"}>
+      <div className={css("flex", "flex-col")}>
+        {data.connectors.map((connector, index) => {
+          return <div className={css({"mt-6": index !== 0})} key={connector.id}>
+            <Button
+              block
+              variant={ButtonType.Black}
+              size={ButtonSize.lg}
+              onClick={() => connect(connector)}>
+             <div className={css("flex", "items-center")}>
+               <Image src={connectorImageSrcMap[connector.id as connectorIds]} width={50} height={50}/>
+               <div className={css("ml-4", "text-white", "text-xl", "font-mono")}>
+                 {connector.name}
+                 {!connector.ready && <span className={css("text-red-600")}>unsupported</span>}
+               </div>
+             </div>
+            </Button>
+          </div>
+        })}
+      </div>
+    </Modal>
+  </>
 }
 
 const WalletConnected = () => {
-  const [{data, error}, disconnect] = useAccount({fetchEns: true})
-  const [open, setOpen] = useState(false)
-
-
-  return <div>
-    <RadixDropdown.Root open={open} onOpenChange={() => setOpen(!open)}>
-      <RadixDropdown.Trigger asChild>
-        <Button onClick={() => setOpen(true)}>{data!.ens?.name ? data!.ens.name : data!.address}</Button>
-      </RadixDropdown.Trigger>
-
-      <RadixDropdown.Content style={{minWidth: "220px"}} className={classNames("bg-white")}>
-        <RadixDropdown.Item>
-          <Link href={`/profile/${data!.address}`}>
-            <a>profile</a>
-          </Link>
-        </RadixDropdown.Item>
-      </RadixDropdown.Content>
-    </RadixDropdown.Root>
-  </div>
+  const [{data}, disconnect] = useAccount({fetchEns: true})
+  const displayName = data!.ens?.name ? data!.ens.name : abbreviate(data!.address)
+  const [{data: networkData}] = useNetwork()
+  const store = useStore()
+  return <Dropdown trigger={<Button>{displayName}</Button>}>
+    <Dropdown.Item>
+      <Link href={`/profile/${data!.address}`}>
+        <a className={css("hover:underline", "text-lg")}>profile</a>
+      </Link>
+    </Dropdown.Item>
+    <Dropdown.Item>
+      <a onClick={() => {
+        disconnect()
+        store.zk.disconnect()
+        debugToast("Disconnected")
+      }}
+         className={css("hover:cursor-pointer", "hover:underline", "text-lg")}>
+        disconnect
+      </a>
+    </Dropdown.Item>
+    <Dropdown.Item>
+      <div className={css("text-neutral-400", "text-sm", "text-right", "mt-2")}>
+        network: {networkData && networkData.chain?.name}
+      </div>
+    </Dropdown.Item>
+  </Dropdown>
 }
-
 
 export default ConnectWallet

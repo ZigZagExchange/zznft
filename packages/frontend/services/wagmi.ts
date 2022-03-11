@@ -4,7 +4,6 @@ import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {WalletLinkConnector} from 'wagmi/connectors/walletLink'
 
 const infuraId = process.env.INFURA_ID
-
 const chains = defaultChains
 
 const connectors = ({ chainId }: {chainId?: number}) => {
@@ -14,6 +13,14 @@ const connectors = ({ chainId }: {chainId?: number}) => {
     new WalletConnectConnector({options: {infuraId, qrcode: true}}),
     new WalletLinkConnector({options: {appName: 'zzNFT', jsonRpcUrl: `${rpcUrl}/${infuraId}`}})
   ]
+}
+
+export type connectorIds = "injected" | "walletConnect" | "walletLink"
+
+export const connectorImageSrcMap: {[key in connectorIds]: string} = {
+  injected: "/images/metamask.svg",
+  walletConnect: "/images/walletconnect.svg",
+  walletLink: "/images/coinbasewallet.png"
 }
 
 export default connectors

@@ -3,7 +3,8 @@ import classNames from "classnames";
 
 export enum ButtonType {
   Primary = 'primary',
-  Secondary = 'secondary'
+  Error = 'error',
+  Black = 'black'
 }
 
 export enum ButtonSize {
@@ -11,27 +12,32 @@ export enum ButtonSize {
   lg = 'lg'
 }
 
+const buttonHoverStyle = ["hover:bg-gradient-to-r", "from-zz-50", "via-zz-100","to-zz-150"]
+
+const buttonVariantStyles = {
+  [ButtonType.Primary]: ["bg-neutral-800", ...buttonHoverStyle],
+  [ButtonType.Black]: ["bg-black", ...buttonHoverStyle],
+  [ButtonType.Error]: ["bg-red-200"]
+}
+
+const buttonSizeStyles = {
+  [ButtonSize.sm]: ["px-3", "py-1", "font-sm"],
+  [ButtonSize.lg]: ["p-4", "font-md"]
+}
+
 interface ButtonProps {
   onClick?: () => void;
   children: any;
   variant?: ButtonType,
-  size?: ButtonSize
+  size?: ButtonSize,
+  block?: boolean
 }
 
-const buttonVariantStyles = {
-  [ButtonType.Primary]: ["bg-neutral-800", "hover:bg-gradient-to-r", "from-cyan-500", "to-blue-700"],
-  [ButtonType.Secondary]: ["bg-red-200"]
-}
+const Button = ({onClick, children, variant = ButtonType.Primary, size = ButtonSize.sm, block}: ButtonProps) => {
 
-const buttonSizeStyles = {
-  [ButtonSize.sm]: ["px-3", "rounded-sm", "font-sm"],
-  [ButtonSize.lg]: ["p-2", "rounded-md", "font-md"]
-}
-
-const Button = ({onClick, children, variant = ButtonType.Primary, size = ButtonSize.sm}: ButtonProps) => {
   return <button
     onClick={onClick && onClick}
-    className={classNames(buttonVariantStyles[variant], buttonSizeStyles[size], "font-mono")}
+    className={classNames(buttonVariantStyles[variant], buttonSizeStyles[size], "font-mono", {"w-full": block})}
   >
     {children}
   </button>

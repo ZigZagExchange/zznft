@@ -3,6 +3,7 @@ import Head from 'next/head'
 import classNames from "classnames";
 import Link from "next/link";
 import ConnectWallet from "../ConnectWallet/ConnectWallet";
+import {css} from "../../helpers/css";
 
 interface LayoutProps {
   children: any;
@@ -11,7 +12,7 @@ interface LayoutProps {
 export const siteTitle = 'zzNFT'
 
 const Layout = ({children}: LayoutProps) => {
-  return <div className={classNames("h-full", "p-3", "bg-black", "text-white")}>
+  return <div className={classNames("h-full", "p-3", "bg-black", "text-white", "text-xl")}>
     <Head>
       <link rel={"icon"} href={"/favicon.ico"}/>
       <meta
@@ -24,9 +25,6 @@ const Layout = ({children}: LayoutProps) => {
       />
       <title>zzNFT</title>
     </Head>
-    {/*<header className={styles.header}>*/}
-    {/*  */}
-    {/*</header>*/}
     <main className={classNames("h-full", "flex", "flex-col", "font-mono")}>
       <Header/>
       <div className={classNames("flex-grow")}>
@@ -39,7 +37,7 @@ const Layout = ({children}: LayoutProps) => {
 const Header = () => {
   return <div className={classNames("flex", "justify-between")}>
     <Link href={"/"}>
-      <a>zzNFT</a>
+      <a className={css("hover:underline")}>zzNFT</a>
     </Link>
     <ConnectWallet/>
   </div>

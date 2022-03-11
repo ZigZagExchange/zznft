@@ -7,8 +7,12 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        // sans: ['', ...defaultTheme.fontFamily.sans]
+      colors: {
+        zz: {
+          50: "#22F7E1",
+          100: "#06C8EB",
+          150: "#09A7F6"
+        }
       }
     },
   },
