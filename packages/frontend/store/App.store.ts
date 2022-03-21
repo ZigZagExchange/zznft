@@ -1,4 +1,4 @@
-import {action, makeObservable, observable} from "mobx";
+import {action, computed, makeObservable, observable} from "mobx";
 import {Wallet} from "zksync";
 import {enableStaticRendering} from "mobx-react";
 import {useMemo} from "react";

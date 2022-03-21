@@ -12,7 +12,7 @@ interface LayoutProps {
 export const siteTitle = 'zzNFT'
 
 const Layout = ({children}: LayoutProps) => {
-  return <div className={classNames("h-full", "p-3", "bg-black", "text-white", "text-xl")}>
+  return <div className={classNames("h-full", "p-3", "bg-black")}>
     <Head>
       <link rel={"icon"} href={"/favicon.ico"}/>
       <meta
@@ -25,13 +25,13 @@ const Layout = ({children}: LayoutProps) => {
       />
       <title>zzNFT</title>
     </Head>
-    <main className={classNames("h-full", "flex", "flex-col", "font-mono")}>
+    <main className={classNames("h-full", "flex", "flex-col", "font-mono", "text-white", "text-lg", "overflow-x-hidden")}>
       <Header/>
       <div className={classNames("flex-grow")}>
         {children}
       </div>
     </main>
-    </div>
+  </div>
 }
 
 const Header = () => {

@@ -1,19 +1,22 @@
 import Head from 'next/head'
 import {GetServerSideProps} from "next";
 import {useRouter} from "next/router";
-import {useEnsAvatar, useEnsLookup, useEnsResolver} from "wagmi";
+import {useEnsAvatar, useEnsLookup} from "wagmi";
 import {css} from "../../helpers/css";
-import Image from "next/image"
-import {abbreviate, jsonfiy} from "../../helpers/strings";
+import {abbreviate} from "../../helpers/strings";
 import * as zksync from "zksync"
 import {ethers} from "ethers";
 import {NFT} from "zksync/build/types";
 import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
+import {objectKeys} from "../../helpers/arrays";
+import {vars} from "../../environment";
 
 interface AddressProps {
   verifiedNFTs: NFT[];
   committedNFTs: NFT[];
+  committedMintedNFTs: NFT[];
+  verifiedMintedNFTs: NFT[];
 }
 
 enum Tabs {
@@ -21,7 +24,7 @@ enum Tabs {
   Creation = "Creations"
 }
 
-export default function Address({verifiedNFTs, committedNFTs}: AddressProps) {
+export default function Address({verifiedNFTs, committedNFTs, committedMintedNFTs, verifiedMintedNFTs}: AddressProps) {
   const router = useRouter()
   const {address} = router.query
   const [{data: ens}] = useEnsLookup({address: address as string})
@@ -47,7 +50,8 @@ export default function Address({verifiedNFTs, committedNFTs}: AddressProps) {
     </div>
     <div>
       <div className={css("flex", "justify-center", "mt-16")}>
-        {(Object.keys(Tabs) as Array<keyof typeof Tabs>).map((key, index) => <div
+        {objectKeys(Tabs).map((key, index) => <div
+          key={key}
           className={css("hover:underline", "hover:cursor-pointer", {
             "underline": Tabs[key] === tab,
             "mr-5": index === 0,
@@ -60,8 +64,10 @@ export default function Address({verifiedNFTs, committedNFTs}: AddressProps) {
       </div>
     </div>
     <div className={css("mt-8")}>
-      {tab === Tabs.Collection && verifiedNFTs.map(nft => <NFTPreview nft={nft}/>)}
-      {tab === Tabs.Creation && <div>creations here</div>}
+      <div className={css("flex", "gap-9")}>
+        {tab === Tabs.Collection && committedNFTs.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
+        {tab === Tabs.Creation && committedMintedNFTs.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
+      </div>
     </div>
   </>
 }
@@ -70,15 +76,19 @@ export const getServerSideProps: GetServerSideProps<AddressProps> = async (conte
   const {address} = context.query
   let committedNFTs: NFT[] = []
   let verifiedNFTs: NFT[] = []
+  let committedMintedNFTs: NFT[] = []
+  let verifiedMintedNFTs: NFT[] = []
 
   try {
     if (address) {
       try {
         const validAddress = ethers.utils.getAddress(address as string)
-        const syncProvider = await zksync.getDefaultProvider('rinkeby');
+        const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
         const state = await syncProvider.getState(validAddress)
-        committedNFTs = Object.keys(state.committed.nfts).map((key) => state.committed.nfts[Number(key)])
-        verifiedNFTs = Object.keys(state.verified.nfts).map((key) => state.verified.nfts[Number(key)])
+        committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
+        verifiedNFTs = objectKeys(state.verified.nfts).map((key) => state.verified.nfts[key])
+        committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.nfts[key])
+        verifiedMintedNFTs = objectKeys(state.verified.mintedNfts).map(key => state.verified.mintedNfts[key])
       } catch (e) {
 
       }
@@ -90,7 +100,9 @@ export const getServerSideProps: GetServerSideProps<AddressProps> = async (conte
   return {
     props: {
       committedNFTs,
-      verifiedNFTs
+      verifiedNFTs,
+      committedMintedNFTs,
+      verifiedMintedNFTs
     }
   }
 }

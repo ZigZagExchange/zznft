@@ -11,9 +11,10 @@ import {debugToast, errorToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
 import {useStore} from "../../store/App.store";
 import {observer} from "mobx-react";
+import {vars} from "../../environment";
+import useDisplayName from "../../hooks/useDisplayName";
 
 const ConnectWallet = observer(() => {
-  const targetChainId = Number(process.env.NEXT_PUBLIC_ETHEREUM_TARGET_CHAIN)
   const [{data: accountData}, disconnect] = useAccount()
   const [{data: signer}] = useSigner()
   const [{data: networkData}, changeNetwork] = useNetwork()
@@ -32,8 +33,8 @@ const ConnectWallet = observer(() => {
       }
     }
 
-    if (signer && networkData.chain?.id === targetChainId) {
-      console.log("debug:: hit 1", signer, networkData.chain?.id, targetChainId, loading)
+    if (signer && networkData.chain?.id === vars.TARGET_CHAIN_ID) {
+      console.log("debug:: hit 1", signer, networkData.chain?.id, vars.TARGET_CHAIN_ID, loading)
       if (store.zk.wallet?.address() !== accountData?.address) {
         console.log("debug:: hit 2", store.zk.wallet?.address(), accountData?.address, loading)
         getZkWallet()
@@ -46,7 +47,7 @@ const ConnectWallet = observer(() => {
     const syncChainToTarget = async () => {
       if (changeNetwork) {
         try {
-          const {error} = await changeNetwork(targetChainId)
+          const {error} = await changeNetwork(vars.TARGET_CHAIN_ID)
           if (error) {
             console.log("debug:: changeNetwork hit", error)
             throw Error()
@@ -63,7 +64,7 @@ const ConnectWallet = observer(() => {
       }
     }
 
-    if (networkData.chain && networkData.chain?.id !== targetChainId) {
+    if (networkData.chain && networkData.chain?.id !== vars.TARGET_CHAIN_ID) {
       syncChainToTarget()
     }
   }, [networkData.chain?.id])
@@ -80,25 +81,48 @@ const ConnectWalletButton = () => {
   const [{data}, connect] = useConnect()
   return <>
     <Button onClick={() => setModalOpen(true)}>connect</Button>
-    <Modal open={modalOpen} onChange={(value) => setModalOpen(value)} title={"Connect Wallet"}>
+    <Modal open={modalOpen} onChange={(value) => setModalOpen(value)} title={"Connect a Wallet"}>
       <div className={css("flex", "flex-col")}>
-        {data.connectors.map((connector, index) => {
+        {data.connectors.filter(connector => connector.ready).map((connector, index) => {
           return <div className={css({"mt-6": index !== 0})} key={connector.id}>
             <Button
               block
               variant={ButtonType.Black}
               size={ButtonSize.lg}
-              onClick={() => connect(connector)}>
+              onClick={() => connect(connector)}
+              className={{
+                "from-metamask-150": connector.name === "MetaMask",
+                "via-metamask-100": connector.name === "MetaMask",
+                "to-metamask-50": connector.name === "MetaMask",
+                "from-coinbase-150": connector.name === "Coinbase Wallet",
+                "via-coinbase-100": connector.name === "Coinbase Wallet",
+                "to-coinbase-50": connector.name === "Coinbase Wallet",
+                "from-walletConnect-150": connector.name === "WalletConnect",
+                "via-walletConnect-100": connector.name === "WalletConnect",
+                "to-walletConnect-50": connector.name === "WalletConnect"
+              }}
+            >
              <div className={css("flex", "items-center")}>
                <Image src={connectorImageSrcMap[connector.id as connectorIds]} width={50} height={50}/>
-               <div className={css("ml-4", "text-white", "text-xl", "font-mono")}>
+               <div className={css("ml-4", "text-xl", "font-mono")}>
                  {connector.name}
-                 {!connector.ready && <span className={css("text-red-600")}>unsupported</span>}
                </div>
              </div>
             </Button>
           </div>
         })}
+        <div className={css("mt-6", "text-lg", "text-neutral-400")}>
+          <div className={css("text-center")}>
+            New to Ethereum?
+          </div>
+          <div className={css("text-center")}>
+            <a
+              target={"_blank"}
+              rel={"noreferrer"}
+              href={"https://ethereum.org/en/wallets/find-wallet/"}
+              className={css("hover:underline", "hover:cursor-pointer", "hover:text-zz-150")}>Get a wallet</a>
+          </div>
+        </div>
       </div>
     </Modal>
   </>
@@ -106,7 +130,7 @@ const ConnectWalletButton = () => {
 
 const WalletConnected = () => {
   const [{data}, disconnect] = useAccount({fetchEns: true})
-  const displayName = data!.ens?.name ? data!.ens.name : abbreviate(data!.address)
+  const {displayName} = useDisplayName(data?.address)
   const [{data: networkData}] = useNetwork()
   const store = useStore()
   return <Dropdown trigger={<Button>{displayName}</Button>}>

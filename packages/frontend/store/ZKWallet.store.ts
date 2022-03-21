@@ -1,4 +1,4 @@
-import {action, makeObservable, observable} from "mobx";
+import {action, computed, makeObservable, observable} from "mobx";
 import {Wallet} from "zksync";
 import {BigNumber, ethers} from "ethers";
 import {Network} from "zksync/build/types";
@@ -49,6 +49,11 @@ class ZKWalletStore {
     // TODO: check if these signer networks are always the same?
     const provider = await zksync.getDefaultProvider(signerNetwork.name as Network)
     this.wallet = await zksync.Wallet.fromEthSigner(signer, provider)
+  }
+
+  @computed
+  get isConnected() {
+    return this.wallet!!
   }
 
 }

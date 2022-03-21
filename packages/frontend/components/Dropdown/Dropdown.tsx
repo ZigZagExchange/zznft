@@ -14,7 +14,7 @@ const Dropdown = ({trigger, children}: DropdownProps) => {
     </RadixDropdown.Trigger>
 
     <RadixDropdown.Content
-      style={{minWidth: "170px"}}
+      style={{minWidth: "200px"}}
       className={css("bg-neutral-800", "w-full", "mt-3", "px-2", "py-1", "text-white")}
     >
       {children}

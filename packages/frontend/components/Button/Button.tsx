@@ -1,5 +1,5 @@
 import React from "react";
-import classNames from "classnames";
+import classNames, {Argument} from "classnames";
 
 export enum ButtonType {
   Primary = 'primary',
@@ -30,14 +30,21 @@ interface ButtonProps {
   children: any;
   variant?: ButtonType,
   size?: ButtonSize,
-  block?: boolean
+  block?: boolean,
+  className?: Argument
 }
 
-const Button = ({onClick, children, variant = ButtonType.Primary, size = ButtonSize.sm, block}: ButtonProps) => {
-
+const Button = ({
+                  onClick,
+                  children,
+                  variant = ButtonType.Primary,
+                  size = ButtonSize.sm,
+                  block,
+                  className
+}: ButtonProps) => {
   return <button
     onClick={onClick && onClick}
-    className={classNames(buttonVariantStyles[variant], buttonSizeStyles[size], "font-mono", {"w-full": block})}
+    className={classNames(buttonVariantStyles[variant], buttonSizeStyles[size], "font-mono", {"w-full": block}, className)}
   >
     {children}
   </button>
