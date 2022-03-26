@@ -4,11 +4,10 @@ import {vars} from "../../environment";
 import {NFTInfo} from "zksync/src/types";
 import {jsonfiy} from "../../helpers/strings";
 import nftMetadata from "../../mocks/nftMetadata";
-import {getDisplayName} from "next/dist/shared/lib/utils";
 import useDisplayName from "../../hooks/useDisplayName";
 import {css} from "../../helpers/css";
 import Pane from "../../components/Pane/Pane";
-import Dev, {DevToggle} from "../../environment/Dev";
+import {DevToggle} from "../../environment/Dev";
 
 export interface Metadata {
   description: string;
@@ -31,7 +30,7 @@ export default function NFT({info, metadata, owner}: NFTProps) {
   return <div className={css("mt-5", "px-24")}>
     {metadata && <div>
       <div>
-        <div className={css("w-100", "bg-neutral-800", "px-8", "py-28", "flex", "justify-center", "items-center")}>
+        <div className={css("w-100", "px-8", "py-28", "flex", "justify-center", "items-center")}>
           <img src={metadata.image}/>
         </div>
         <div className={css("flex", "justify-between", "items-center", "mt-10")}>
@@ -78,7 +77,6 @@ export default function NFT({info, metadata, owner}: NFTProps) {
         </div>
       </div>
 
-
       <DevToggle>
         <div className={css("break-all")}>
           <div>
@@ -109,8 +107,8 @@ export const getServerSideProps: GetServerSideProps<NFTProps> = async (context) 
   if (id) {
     try {
       info = await syncProvider.getNFT(Number(id))
+      // TODO: get owner address, this returns a number
       owner = await syncProvider.getNFTOwner(Number(id))
-      console.log("debug:: metadata", metadata)
     } catch (e) {
       console.error("Could not get token")
     }

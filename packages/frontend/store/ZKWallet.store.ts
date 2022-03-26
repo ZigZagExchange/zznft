@@ -34,7 +34,6 @@ class ZKWalletStore {
     this.ethBalance = balance ? balance : null
   }
 
-
   @action
   disconnect() {
     this.wallet = null
@@ -55,7 +54,6 @@ class ZKWalletStore {
   get isConnected() {
     return this.wallet!!
   }
-
 }
 
 export default ZKWalletStore

@@ -1,6 +1,6 @@
 import React, {useState} from "react"
 import {isDev} from "./index";
-import Button, {ButtonType} from "../components/Button/Button";
+import Button, {ButtonSize, ButtonType} from "../components/Button/Button";
 import {css} from "../helpers/css";
 
 
@@ -16,11 +16,11 @@ export const DevToggle: React.FC = ({children}) => {
   const [show, setShow] = useState(false)
   return <Dev>
     <div className={css("flex", "my-2", "p-5")}>
-      <div>
+      <div className={css("text-pink-400")}>
         <Button variant={ButtonType.Black} onClick={() => setShow(!show)}>
           {show ? "-" : "+"}
-          <div className={css("text-xs", "text-center", "text-pink-400")}>dev</div>
         </Button>
+        <div className={css("text-xs", "text-center", "text-pink-400", "mt-1")}>dev</div>
       </div>
       {show && <div className={css("ml-5")}>{children}</div>}
     </div>

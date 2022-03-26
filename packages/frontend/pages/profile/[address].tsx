@@ -87,7 +87,7 @@ export const getServerSideProps: GetServerSideProps<AddressProps> = async (conte
         const state = await syncProvider.getState(validAddress)
         committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
         verifiedNFTs = objectKeys(state.verified.nfts).map((key) => state.verified.nfts[key])
-        committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.nfts[key])
+        committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
         verifiedMintedNFTs = objectKeys(state.verified.mintedNfts).map(key => state.verified.mintedNfts[key])
       } catch (e) {
 

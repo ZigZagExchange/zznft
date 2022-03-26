@@ -4,7 +4,8 @@ module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
-    "./environment/**/*.{jsx,tsx}"
+    "./environment/**/*.{jsx,tsx}",
+    "./playroom/**/*.{jsx,tsx}"
   ],
   theme: {
     extend: {
