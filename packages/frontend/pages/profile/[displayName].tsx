@@ -4,13 +4,9 @@ import {useRouter} from "next/router";
 import {useEnsAvatar, useEnsLookup} from "wagmi";
 import {css} from "../../helpers/css";
 import {abbreviate, isValidEthereumAddress} from "../../helpers/strings";
-import * as zksync from "zksync"
-import {ethers} from "ethers";
-import {NFT} from "zksync/build/types";
 import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
 import {objectKeys} from "../../helpers/arrays";
-import {vars} from "../../environment";
 import {nfts, PrismaClient} from "@prisma/client";
 import {accounts} from "@prisma/client/";
 
@@ -101,33 +97,4 @@ const getNftsFromDB = async (address: string) => {
   nftsMinted = await prisma.nfts.findMany({where: {creator_id: account.id}})
   nftsOwned = await prisma.nfts.findMany({where: {owner_id: account.id}})
   return {nftsMinted, nftsOwned, account}
-}
-
-
-const getNftsFromChain = async (address: string) => {
-  let committedNFTs: NFT[] = []
-  let verifiedNFTs: NFT[] = []
-  let committedMintedNFTs: NFT[] = []
-  let verifiedMintedNFTs: NFT[] = []
-
-  try {
-    try {
-      const validAddress = ethers.utils.getAddress(address as string)
-      const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
-      const state = await syncProvider.getState(validAddress)
-      committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
-      verifiedNFTs = objectKeys(state.verified.nfts).map((key) => state.verified.nfts[key])
-      committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
-      verifiedMintedNFTs = objectKeys(state.verified.mintedNfts).map(key => state.verified.mintedNfts[key])
-    } catch (e) {
-
-    }
-  } catch (e) {
-    console.error("debug:: error hit", e)
-  }
-
-  return {
-      nftsOwned: committedNFTs,
-      nftsMinted: committedMintedNFTs
-  }
 }
