@@ -1,0 +1,30 @@
+datasource db {
+    provider = "postgresql"
+    url = "postgresql://postgres:test@localhost:5432/test_db?schema=public"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model accounts {
+    id              String        @id @default(uuid()) @db.Uuid
+    address         String        @db.Text
+    display_name    String        @db.Text
+}
+
+model nfts {
+    id              String        @id @default(uuid()) @db.Uuid
+    token_id        Int           @db.Integer
+    content_hash    String        @db.Text
+    creator_id      String        @db.Uuid
+    owner_id        String        @db.Uuid
+    metadata        Json          @db.Json
+}
+
+model feed {
+    id              String        @id @default(uuid()) @db.Uuid
+    nft_id          String        @db.Uuid
+    event           String        @db.Text
+}
+

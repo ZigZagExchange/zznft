@@ -3,7 +3,7 @@ import {GetServerSideProps} from "next";
 import {useRouter} from "next/router";
 import {useEnsAvatar, useEnsLookup} from "wagmi";
 import {css} from "../../helpers/css";
-import {abbreviate} from "../../helpers/strings";
+import {abbreviate, isValidEthereumAddress} from "../../helpers/strings";
 import * as zksync from "zksync"
 import {ethers} from "ethers";
 import {NFT} from "zksync/build/types";
@@ -11,12 +11,13 @@ import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
 import {objectKeys} from "../../helpers/arrays";
 import {vars} from "../../environment";
+import {nfts, PrismaClient} from "@prisma/client";
+import {accounts} from "@prisma/client/";
 
 interface AddressProps {
-  verifiedNFTs: NFT[];
-  committedNFTs: NFT[];
-  committedMintedNFTs: NFT[];
-  verifiedMintedNFTs: NFT[];
+  nftsOwned: nfts[]
+  nftsMinted: nfts[]
+  account: accounts
 }
 
 enum Tabs {
@@ -24,7 +25,7 @@ enum Tabs {
   Creation = "Creations"
 }
 
-export default function Address({verifiedNFTs, committedNFTs, committedMintedNFTs, verifiedMintedNFTs}: AddressProps) {
+export default function DisplayName({nftsOwned, nftsMinted, account}: AddressProps) {
   const router = useRouter()
   const {address} = router.query
   const [{data: ens}] = useEnsLookup({address: address as string})
@@ -65,44 +66,68 @@ export default function Address({verifiedNFTs, committedNFTs, committedMintedNFT
     </div>
     <div className={css("mt-8")}>
       <div className={css("flex", "gap-9")}>
-        {tab === Tabs.Collection && committedNFTs.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
-        {tab === Tabs.Creation && committedMintedNFTs.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
+        {tab === Tabs.Collection && nftsOwned.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
+        {tab === Tabs.Creation && nftsMinted.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
       </div>
     </div>
   </>
 }
 
 export const getServerSideProps: GetServerSideProps<AddressProps> = async (context) => {
-  const {address} = context.query
+  const {displayName} = context.query
+  if (!displayName) {
+    throw Error("No address")
+  }
+  // TODO: how can address here be string[]?
+  return {props: getNftsFromDB(displayName as string)}
+}
+
+const getNftsFromDB = async (address: string) => {
+  const prisma = new PrismaClient()
+  let nftsMinted: nfts[] = []
+  let nftsOwned: nfts[] = []
+  let account: accounts | null
+
+  if (isValidEthereumAddress(address)) {
+    account = await prisma.accounts.findFirst({where: {address: address}})
+  } else {
+    account = await prisma.accounts.findFirst({where: {display_name: address}})
+  }
+
+  if (!account) {
+    throw Error("Could not find account")
+  }
+
+  nftsMinted = await prisma.nfts.findMany({where: {creator_id: account.id}})
+  nftsOwned = await prisma.nfts.findMany({where: {owner_id: account.id}})
+  return {nftsMinted, nftsOwned, account}
+}
+
+
+const getNftsFromChain = async (address: string) => {
   let committedNFTs: NFT[] = []
   let verifiedNFTs: NFT[] = []
   let committedMintedNFTs: NFT[] = []
   let verifiedMintedNFTs: NFT[] = []
 
   try {
-    if (address) {
-      try {
-        const validAddress = ethers.utils.getAddress(address as string)
-        const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
-        const state = await syncProvider.getState(validAddress)
-        committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
-        verifiedNFTs = objectKeys(state.verified.nfts).map((key) => state.verified.nfts[key])
-        committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
-        verifiedMintedNFTs = objectKeys(state.verified.mintedNfts).map(key => state.verified.mintedNfts[key])
-      } catch (e) {
+    try {
+      const validAddress = ethers.utils.getAddress(address as string)
+      const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
+      const state = await syncProvider.getState(validAddress)
+      committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
+      verifiedNFTs = objectKeys(state.verified.nfts).map((key) => state.verified.nfts[key])
+      committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
+      verifiedMintedNFTs = objectKeys(state.verified.mintedNfts).map(key => state.verified.mintedNfts[key])
+    } catch (e) {
 
-      }
     }
   } catch (e) {
     console.error("debug:: error hit", e)
   }
 
   return {
-    props: {
-      committedNFTs,
-      verifiedNFTs,
-      committedMintedNFTs,
-      verifiedMintedNFTs
-    }
+      nftsOwned: committedNFTs,
+      nftsMinted: committedMintedNFTs
   }
 }

@@ -17,7 +17,7 @@ export const DevToggle: React.FC = ({children}) => {
   return <Dev>
     <div className={css("flex", "my-2", "p-5")}>
       <div className={css("text-pink-400")}>
-        <Button variant={ButtonType.Black} onClick={() => setShow(!show)}>
+        <Button type={ButtonType.Black} onClick={() => setShow(!show)}>
           {show ? "-" : "+"}
         </Button>
         <div className={css("text-xs", "text-center", "text-pink-400", "mt-1")}>dev</div>

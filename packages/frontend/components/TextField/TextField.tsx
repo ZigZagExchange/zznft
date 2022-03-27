@@ -5,7 +5,7 @@ import Spinner, {SpinnerSize} from "../Spinner/Spinner";
 type BaseTextFieldProps =
   Pick<React.HTMLProps<HTMLInputElement>, "placeholder" | "name">
 
-interface TextFieldProps {
+export interface TextFieldProps extends BaseTextFieldProps {
   value?: string;
   onChange?: (value: string) => void;
   isLoading?: boolean;

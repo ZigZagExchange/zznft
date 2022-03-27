@@ -1,38 +1,31 @@
-import {NFT} from "zksync/build/types";
-import {jsonfiy} from "../../helpers/strings";
-import {useEffect} from "react";
+import {jsonify} from "../../helpers/strings";
 import {css} from "../../helpers/css";
 import {useRouter} from "next/router";
-
+import {nfts} from "@prisma/client";
+import {Metadata} from "../../pages/nft/[id]";
+import {DevToggle} from "../../environment/Dev";
 
 interface NFTPreviewProps {
-  nft: NFT
+  nft: nfts;
+  showDetails?: boolean;
 }
 
-const NFTPreview = ({nft}: NFTPreviewProps) => {
-  const cid = nft.contentHash
-  const baseIPFSGatewayURL = 'https://ipfs.io/ipfs'
+const NFTPreview = ({nft, showDetails = false}: NFTPreviewProps) => {
   const router = useRouter()
+  const metadata = nft.metadata as Metadata
 
-  // const exampleCID = "bafkreibpfvcexzn7ixe72urxh3u6tpdvynnygh2ntr7pams2sf5plkr3ia"
-  // useEffect(() => {
-  //   fetch(`${baseIPFSGatewayURL}/${cid}`)
-  //     .then(res => {
-  //       console.log("debug:: res", res.body)
-  //       return res
-  //     })
-  //     .then(json => {
-  //       // console.log(json)
-  //     })
-  //     .catch(e => {
-  //       console.error(e)
-  //     })
-  // }, [])
-
-  return <div
-    onClick={() => router.push(`/nft/${nft.id}`)}
-    className={css("break-all", "bg-neutral-800", "p-3", "text-sm", "hover:cursor-pointer", "hover:bg-neutral-900")} style={{width: "300px", height: "300px"}}>
-    {jsonfiy(nft)}
+  return <div>
+    <div
+      style={{minWidth: "300px", minHeight: "300px"}}
+      onClick={() => router.push(`/nft/${nft.token_id}`)}
+      className={css("break-all", "bg-neutral-800", "p-3", "text-sm", "hover:cursor-pointer", "hover:bg-neutral-900", "w-full", "h-full", "flex", "items-center", "justify-center")}>
+      <img src={metadata.image}/>
+    </div>
+    {showDetails && <div className={css("flex", "justify-between", "mt-3")}>
+      <div>{metadata.name}</div>
+      <div>{nft.token_id}</div>
+    </div>}
+    {/*<DevToggle>{jsonfiy(nft)}</DevToggle>*/}
   </div>
 }
 

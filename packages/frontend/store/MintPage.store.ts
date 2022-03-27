@@ -73,6 +73,10 @@ class MintPageStore extends NavigationStore<MintView>{
   get acceptedExtensionString() {
     return this.acceptedFileTypes.map(item => item.extension).join(", ")
   }
+
+  submit() {
+    // fetch({method: "POST", url: "/metadata"})
+  }
 }
 
 export default MintPageStore

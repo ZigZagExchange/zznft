@@ -4,7 +4,7 @@ import classNames from "classnames";
 import Link from "next/link";
 import ConnectWallet from "../ConnectWallet/ConnectWallet";
 import {css} from "../../helpers/css";
-import {useStore} from "../../store/App.store";
+import {useAppStore} from "../../store/App.store";
 import Button from "../Button/Button";
 import {useRouter} from "next/router";
 import {observer} from "mobx-react";
@@ -42,7 +42,7 @@ const Layout = ({children}: LayoutProps) => {
 }
 
 const Header = observer(() => {
-  const store = useStore()
+  const store = useAppStore()
   const router = useRouter()
 
   return <div className={classNames("flex", "justify-between")}>

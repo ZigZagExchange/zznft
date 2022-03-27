@@ -1,7 +1,7 @@
 import {Form as FinalForm} from "react-final-form"
 import {FORM_ERROR, FormApi} from "final-form";
 import {DevToggle} from "../../environment/Dev";
-import {jsonfiy} from "../../helpers/strings";
+import {jsonify} from "../../helpers/strings";
 import ApiError from "../../errors/Api.error";
 
 
@@ -29,7 +29,7 @@ const Form: React.FC<FormProps> = ({children, onSubmit}) => {
           {children}
         </form>
         <DevToggle>
-          {jsonfiy(values)}
+          {jsonify(values)}
         </DevToggle>
       </>}}
   />

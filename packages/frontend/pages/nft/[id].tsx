@@ -1,15 +1,13 @@
 import {GetServerSideProps} from "next";
-import * as zksync from "zksync";
-import {vars} from "../../environment";
-import {NFTInfo} from "zksync/src/types";
-import {jsonfiy} from "../../helpers/strings";
-import nftMetadata from "../../mocks/nftMetadata";
-import useDisplayName from "../../hooks/useDisplayName";
+import {jsonify} from "../../helpers/strings";
 import {css} from "../../helpers/css";
 import Pane from "../../components/Pane/Pane";
 import {DevToggle} from "../../environment/Dev";
+import {accounts, Prisma} from "@prisma/client/";
+import {nfts, PrismaClient} from "@prisma/client";
+import Link from "next/link";
 
-export interface Metadata {
+export interface Metadata extends Prisma.JsonObject {
   description: string;
   external_url?: string;
   image: string;
@@ -18,15 +16,13 @@ export interface Metadata {
 }
 
 interface NFTProps {
-  info?: NFTInfo,
-  metadata?: Metadata,
-  owner?: number
+  nft: nfts;
+  ownerAccount: accounts;
+  minterAccount: accounts;
 }
 
-export default function NFT({info, metadata, owner}: NFTProps) {
-  const {displayName: ownerName} = useDisplayName(info?.address)
-  const {displayName: creatorName} = useDisplayName(info?.creatorAddress)
-
+export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
+  const metadata = nft.metadata as Metadata
   return <div className={css("mt-5", "px-24")}>
     {metadata && <div>
       <div>
@@ -36,7 +32,7 @@ export default function NFT({info, metadata, owner}: NFTProps) {
         <div className={css("flex", "justify-between", "items-center", "mt-10")}>
           <div className={css("text-3xl")}>{metadata.name}</div>
           <div>
-            <div>{owner}</div>
+            <div>{ownerAccount.display_name}</div>
             <div className={css("text-right", "text-sm", "text-neutral-400")}>owner</div>
           </div>
         </div>
@@ -62,15 +58,19 @@ export default function NFT({info, metadata, owner}: NFTProps) {
             <Pane title={"Details"}>
               <div className={css("flex", "justify-between", "mb-3")}>
                 <div className={css("text-neutral-400")}>Token ID</div>
-                <div>{info?.id}</div>
+                <div>{nft.token_id}</div>
               </div>
               <div className={css("flex", "justify-between", "mb-3")}>
                 <div className={css("text-neutral-400")}>Metadata</div>
-                <div>{info?.id}</div>
+                {/*TODO: NEED TO CONVERT contentHash BACK TO CID & LINK TO METADATA IN IPFS*/}
+                <div></div>
               </div>
               <div className={css("flex", "justify-between")}>
                 <div className={css("text-neutral-400")}>Creator</div>
-                <div>{creatorName}</div>
+
+                <Link href={`/profile/${minterAccount.display_name}`}>
+                  <a className={css("hover:underline")}>{minterAccount.display_name}</a>
+                </Link>
               </div>
             </Pane>
           </div>
@@ -80,10 +80,13 @@ export default function NFT({info, metadata, owner}: NFTProps) {
       <DevToggle>
         <div className={css("break-all")}>
           <div>
-            {jsonfiy(info)}
+            {jsonify(ownerAccount)}
           </div>
           <div className={css("mt-5")}>
-            {jsonfiy(metadata)}
+            {jsonify(minterAccount)}
+          </div>
+          <div className={css("mt-5")}>
+            {jsonify(metadata)}
           </div>
         </div>
       </DevToggle>
@@ -97,28 +100,22 @@ export default function NFT({info, metadata, owner}: NFTProps) {
 
 export const getServerSideProps: GetServerSideProps<NFTProps> = async (context) => {
   const {id} = context.query
-  let info
-  let owner
 
-  // TODO: query from IPFS/arweave
-  const metadata = nftMetadata
-
-  const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
-  if (id) {
-    try {
-      info = await syncProvider.getNFT(Number(id))
-      // TODO: get owner address, this returns a number
-      owner = await syncProvider.getNFTOwner(Number(id))
-    } catch (e) {
-      console.error("Could not get token")
-    }
+  const prisma = new PrismaClient()
+  const nft = await prisma.nfts.findFirst({where: {token_id: Number(id)}})
+  if (!nft) {
+    throw Error("Could not find token")
   }
-
+  const ownerAccount = await prisma.accounts.findFirst({where: {id: nft.owner_id}})
+  const minterAccount = await prisma.accounts.findFirst({where: {id: nft.creator_id}})
+  if (!ownerAccount || !minterAccount) {
+    throw Error("Could not get owner or minter account")
+  }
   return {
     props: {
-      info,
-      metadata,
-      owner
+      nft,
+      ownerAccount,
+      minterAccount
     }
   }
 }

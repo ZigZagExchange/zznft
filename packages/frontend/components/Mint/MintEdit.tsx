@@ -4,6 +4,8 @@ import {css} from "../../helpers/css";
 import MediaInput from "./MediaInput";
 import Button, {ButtonType} from "../Button/Button";
 import TextField from "../TextField/TextField";
+import Form from "../Form/Form";
+import TextInput from "../Form/TextInput";
 
 const MintEdit = observer(({store}: { store: MintPageStore }) => {
   return <div className={css("grid", "grid-cols-2", "gap-16")}>
@@ -16,20 +18,17 @@ const MintEdit = observer(({store}: { store: MintPageStore }) => {
         </div>
       </div>
       <div className={css("flex", "justify-between", "mt-8")}>
-        <Button variant={ButtonType.Black} onClick={() => store.goBack()}>back</Button>
+        <Button type={ButtonType.Black} onClick={() => store.goBack()}>back</Button>
         <Button onClick={() => store.currentView = MintView.Preview}>continue</Button>
       </div>
     </div>
     <div className={css("flex", "flex-col", "gap-5")}>
-      <div>
-        <div>Title</div>
-        <TextField value={store.title} onChange={(value) => store.title = value}/>
-      </div>
-
-      <div>
-        <div>Description</div>
-        <TextField value={store.description} onChange={(value) => store.description = value}/>
-      </div>
+      <Form onSubmit={async (data) => console.log(data)}>
+        <div className={css("flex", "flex-col", "gap-5")}>
+          <TextInput name={"title"} label={"Title"} value={store.title} onChange={(val) => store.title = val}/>
+          <TextInput name={"description"} label={"Description"} value={store.description} onChange={(val) => store.description = val}/>
+        </div>
+      </Form>
     </div>
   </div>
 })

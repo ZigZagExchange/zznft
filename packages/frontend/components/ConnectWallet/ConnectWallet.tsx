@@ -9,7 +9,7 @@ import {connectorIds, connectorImageSrcMap} from "../../services/wagmi";
 import Image from "next/image"
 import {debugToast, errorToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
-import {useStore} from "../../store/App.store";
+import {useAppStore} from "../../store/App.store";
 import {observer} from "mobx-react";
 import {vars} from "../../environment";
 import useDisplayName from "../../hooks/useDisplayName";
@@ -19,7 +19,7 @@ const ConnectWallet = observer(() => {
   const [{data: signer}] = useSigner()
   const [{data: networkData}, changeNetwork] = useNetwork()
   const [{loading}] = useConnect()
-  const store = useStore()
+  const store = useAppStore()
 
   useEffect(() => {
     const getZkWallet = async () => {
@@ -87,7 +87,7 @@ const ConnectWalletButton = () => {
           return <div className={css({"mt-6": index !== 0})} key={connector.id}>
             <Button
               block
-              variant={ButtonType.Black}
+              type={ButtonType.Black}
               size={ButtonSize.lg}
               onClick={() => connect(connector)}
               className={{
@@ -132,7 +132,7 @@ const WalletConnected = () => {
   const [{data}, disconnect] = useAccount({fetchEns: true})
   const {displayName} = useDisplayName(data?.address)
   const [{data: networkData}] = useNetwork()
-  const store = useStore()
+  const store = useAppStore()
   return <Dropdown trigger={<Button>{displayName}</Button>}>
     <Dropdown.Item>
       <Link href={`/profile/${data!.address}`}>

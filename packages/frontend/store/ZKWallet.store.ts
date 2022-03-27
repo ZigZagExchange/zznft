@@ -42,12 +42,17 @@ class ZKWalletStore {
 
   @action
   async connect(signer: ethers.Signer) {
-    console.log("debug:: attempting to connect with", await signer.getChainId())
+    try {
+      console.log("debug:: attempting to connect with", await signer.getChainId())
 
-    const signerNetwork = await signer.provider!.getNetwork()
-    // TODO: check if these signer networks are always the same?
-    const provider = await zksync.getDefaultProvider(signerNetwork.name as Network)
-    this.wallet = await zksync.Wallet.fromEthSigner(signer, provider)
+      const signerNetwork = await signer.provider!.getNetwork()
+      // TODO: check if these signer networks are always the same?
+      const provider = await zksync.getDefaultProvider(signerNetwork.name as Network)
+      this.wallet = await zksync.Wallet.fromEthSigner(signer, provider)
+      console.log("wallet", this.wallet)
+    } catch (e) {
+      console.error("Error connecting zksync wallet")
+    }
   }
 
   @computed

@@ -21,7 +21,7 @@ const MintPreview = observer(({store}: {store: MintPageStore}) => {
         <div className={css("mt-5")}>Double check the details below as you will not be able to alter them after minting.</div>
       </div>
       <div className={css("flex", "justify-around")}>
-        <Button onClick={() => store.goBack()} variant={ButtonType.Black}>back</Button>
+        <Button onClick={() => store.goBack()} type={ButtonType.Black}>back</Button>
         <Button onClick={() => alert("mint")}>mint</Button>
       </div>
     </div>

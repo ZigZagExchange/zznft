@@ -17,16 +17,13 @@ class AppStore {
 
    constructor() {
      makeObservable(this)
-     console.log("debug:: calling app store constructor")
      this.zk = new ZKWalletStore()
    }
 
   @action
   hydrate = (data: AppStore) => {
-    console.log("debug:: hydrate", data)
     if (!data) return
   }
-
 }
 
 
@@ -47,7 +44,6 @@ function initializeStore(initialData = null) {
 }
 
 
-export function useStore() {
-  const store = useMemo(() => initializeStore(), [])
-  return store
+export function useAppStore() {
+  return useMemo(() => initializeStore(), [])
 }
