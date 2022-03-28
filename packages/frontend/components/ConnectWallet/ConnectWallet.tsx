@@ -1,73 +1,30 @@
-import {useAccount, useConnect, useNetwork, useSigner} from "wagmi";
+import {useAccount, useConnect, useNetwork} from "wagmi";
 import React, {useEffect, useState} from "react";
 import Button, {ButtonSize, ButtonType} from "../Button/Button";
 import Link from "next/link";
-import {abbreviate} from "../../helpers/strings";
 import {css} from "../../helpers/css";
 import Modal from "../Modal/Modal";
-import {connectorIds, connectorImageSrcMap} from "../../services/wagmi";
+import {connectorIds, connectorImageSrcMap} from "../../config/connectors";
 import Image from "next/image"
-import {debugToast, errorToast} from "../Toast/toast";
+import {debugToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
 import {useAppStore} from "../../store/App.store";
 import {observer} from "mobx-react";
-import {vars} from "../../environment";
 import useDisplayName from "../../hooks/useDisplayName";
+import useNetworkWatcher from "../../hooks/useNetworkWatcher";
+import useZkWalletConnector from "../../hooks/useZkWalletWatcher";
 
 const ConnectWallet = observer(() => {
-  const [{data: accountData}, disconnect] = useAccount()
-  const [{data: signer}] = useSigner()
-  const [{data: networkData}, changeNetwork] = useNetwork()
+  const [{data: accountData}] = useAccount()
   const [{loading}] = useConnect()
-  const store = useAppStore()
+  const {isTargetChainConnected} = useNetworkWatcher()
+  const {isZkWalletConnected} = useZkWalletConnector()
 
   useEffect(() => {
-    const getZkWallet = async () => {
-      try {
-        await store.zk.connect(signer!)
-      } catch (e) {
-        console.error("debug:: error connecting to zksync wallet", e)
-        errorToast("Could not get zkWallet")
-        disconnect()
-        store.zk.disconnect()
-      }
-    }
+    if (isTargetChainConnected && isZkWalletConnected) {
 
-    if (signer && networkData.chain?.id === vars.TARGET_CHAIN_ID) {
-      console.log("debug:: hit 1", signer, networkData.chain?.id, vars.TARGET_CHAIN_ID, loading)
-      if (store.zk.wallet?.address() !== accountData?.address) {
-        console.log("debug:: hit 2", store.zk.wallet?.address(), accountData?.address, loading)
-        getZkWallet()
-      }
     }
-  }, [signer, accountData?.address, networkData.chain?.id])
-
-  // force connecting to the correct chain
-  useEffect(() => {
-    const syncChainToTarget = async () => {
-      if (changeNetwork) {
-        try {
-          const {error} = await changeNetwork(vars.TARGET_CHAIN_ID)
-          if (error) {
-            console.log("debug:: changeNetwork hit", error)
-            throw Error()
-          }
-        } catch (e) {
-          errorToast("Please reconnect on correct chain")
-          disconnect()
-          store.zk.disconnect()
-        }
-      } else {
-        errorToast("Please reconnect on correct chain")
-        disconnect()
-        store.zk.disconnect()
-      }
-    }
-
-    if (networkData.chain && networkData.chain?.id !== vars.TARGET_CHAIN_ID) {
-      syncChainToTarget()
-    }
-  }, [networkData.chain?.id])
+  }, [isTargetChainConnected, isZkWalletConnected])
 
   return <>
     {loading ? <div>loading</div> : null}

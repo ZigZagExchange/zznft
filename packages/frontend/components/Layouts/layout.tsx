@@ -9,12 +9,13 @@ import Button from "../Button/Button";
 import {useRouter} from "next/router";
 import {observer} from "mobx-react";
 import {isDev} from "../../environment";
+import {siteTitle} from "../../constants";
+import {useNetwork} from "wagmi";
+import { motion } from "framer-motion";
 
 interface LayoutProps {
   children: any;
 }
-
-export const siteTitle = 'zzNFT'
 
 const Layout = ({children}: LayoutProps) => {
   return <div className={classNames("h-full", "p-3", "bg-black")}>
@@ -45,22 +46,41 @@ const Header = observer(() => {
   const store = useAppStore()
   const router = useRouter()
 
-  return <div className={classNames("flex", "justify-between")}>
-    <div>
-      <Link href={"/"}>
-        <a className={css("hover:underline")}>zzNFT</a>
-      </Link>
-      {isDev() && <Link href={"/dsl"}>
-        <a className={css("hover:underline", "ml-10")}>dsl</a>
-      </Link>}
-    </div>
-    <div className={css("flex")}>
-      <div className={css("mr-4")}>
-        {store.zk.isConnected && <Button onClick={() => router.push("/mint")}>+</Button>}
+  return <div>
+    <EnvironmentBanner/>
+    <div className={classNames("flex", "justify-between")}>
+      <div>
+        <Link href={"/"}>
+          <a className={css("hover:underline")}>zzNFT</a>
+        </Link>
+        {isDev() && <Link href={"/dsl"}>
+          <a className={css("hover:underline", "ml-10")}>dsl</a>
+        </Link>}
       </div>
-      <ConnectWallet/>
+      <div className={css("flex")}>
+        <div className={css("mr-4")}>
+          {store.zk.isConnected && <Button onClick={() => router.push("/mint")}>+</Button>}
+        </div>
+        <ConnectWallet/>
+      </div>
     </div>
   </div>
 })
+
+const EnvironmentBanner = () => {
+  const [{data}] = useNetwork()
+  const {chain} = data
+  return <div className={css("whitespace-nowrap")}>
+    <motion.div
+        className={css("flex")}
+        animate={{x: ["100%", "-100%"], padding: "3px 0px"}}
+        transition={{x: {duration: 60, repeat: Infinity, ease: "linear", repeatType: "loop"}}}
+    >
+      {new Array(10).fill(undefined).map((item, index) => <div
+          className={css("text-white", "flex", "ml-7")}
+          key={`dev-banner-${index}`}>///// rinkeby /////</div>)}
+    </motion.div>
+  </div>
+}
 
 export default Layout

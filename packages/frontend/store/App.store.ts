@@ -10,7 +10,7 @@ enableStaticRendering(typeof window === 'undefined')
 
 let store: AppStore | null = null
 
-class AppStore {
+export class AppStore {
 
   @observable
   zk: ZKWalletStore

@@ -1,5 +1,5 @@
 import {observer} from "mobx-react";
-import MintPageStore from "../../store/MintPage.store";
+import MintPageStore, {MintView} from "../../store/MintPage.store";
 import {css} from "../../helpers/css";
 import MediaInput from "./MediaInput";
 import Button, {ButtonType} from "../Button/Button";
@@ -17,12 +17,21 @@ const MintPreview = observer(({store}: {store: MintPageStore}) => {
     </div>
     <div style={{maxWidth: "500px"}} className={css("flex", "flex-col", "justify-between", "h-full")}>
       <div>
-        <div>You are able to release "{store.title}" to the world.</div>
+        <div>You are about to release "{store.title}" to the world.</div>
         <div className={css("mt-5")}>Double check the details below as you will not be able to alter them after minting.</div>
       </div>
       <div className={css("flex", "justify-around")}>
         <Button onClick={() => store.goBack()} type={ButtonType.Black}>back</Button>
-        <Button onClick={() => alert("mint")}>mint</Button>
+        <Button onClick={() => {
+          store.submit()
+            .then(res => {
+              console.log(res)
+              store.currentView = MintView.Select
+            })
+            .catch(e => {
+              console.error(e)
+            })
+        }}>mint</Button>
       </div>
     </div>
   </div>

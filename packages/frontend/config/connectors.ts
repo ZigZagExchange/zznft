@@ -4,14 +4,14 @@ import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {WalletLinkConnector} from 'wagmi/connectors/walletLink'
 
 const infuraId = process.env.INFURA_ID
-const chains = defaultChains
+const chains = [chain.mainnet, chain.rinkeby]
 
 const connectors = ({ chainId }: {chainId?: number}) => {
   const rpcUrl = chains.find((x) => x.id === chainId)?.rpcUrls?.[0] ?? chain.mainnet.rpcUrls[0]
   return [
-    new InjectedConnector({chains, options: { shimDisconnect: true }}),
-    new WalletConnectConnector({options: {infuraId, qrcode: true}}),
-    new WalletLinkConnector({options: {appName: 'zzNFT', jsonRpcUrl: `${rpcUrl}/${infuraId}`}})
+    new InjectedConnector({chains, options: { shimDisconnect: true, shimChainChangedDisconnect: false }}),
+    new WalletConnectConnector({chains, options: {infuraId, qrcode: true}}),
+    new WalletLinkConnector({chains, options: {appName: 'zzNFT', jsonRpcUrl: `${rpcUrl}/${infuraId}`}})
   ]
 }
 

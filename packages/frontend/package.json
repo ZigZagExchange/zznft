@@ -14,11 +14,14 @@
     "@radix-ui/react-dialog": "^0.1.7",
     "@radix-ui/react-dropdown-menu": "^0.1.6",
     "autoprefixer": "^10.4.2",
+    "axios": "^0.26.1",
     "classnames": "^2.3.1",
     "ethers": "^5.5.4",
     "final-form": "^4.20.6",
+    "framer-motion": "^6.2.8",
     "mobx": "^6.4.2",
     "mobx-react": "^7.3.0",
+    "multiformats": "^9.6.4",
     "next": "12.1.0",
     "postcss": "^8.4.7",
     "prisma": "^3.11.1",
@@ -32,7 +35,7 @@
     "sharp": "^0.30.2",
     "tailwindcss": "^3.0.23",
     "wagmi": "^0.2.18",
-    "zksync": "^0.12.0-alpha.6"
+    "zksync": "^0.11.6"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.16.7",

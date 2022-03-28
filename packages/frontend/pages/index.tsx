@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import {siteTitle} from "../components/Layouts/layout";
 import {observer} from "mobx-react";
 import TextField from "../components/TextField/TextField";
 import {useState} from "react";
@@ -7,6 +6,7 @@ import {css} from "../helpers/css";
 import {GetServerSideProps} from "next";
 import {nfts, PrismaClient} from "@prisma/client";
 import NFTPreview from "../components/NFTPreview/NFTPreview";
+import {siteTitle} from "../constants";
 
 interface HomeProps {
   feed: nfts[]

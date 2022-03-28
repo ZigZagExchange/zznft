@@ -2,6 +2,12 @@ import {computed, makeObservable, observable} from "mobx";
 import {FileRejection} from "react-dropzone";
 import {errorToast} from "../components/Toast/toast";
 import NavigationStore from "./Navigation.store";
+import ZKWalletStore from "./ZKWallet.store";
+import {AppStore} from "./App.store";
+import {sleep} from "zksync/build/utils";
+import * as zksync from "zksync"
+import {vars} from "../environment/vars";
+import {submitSignedTransaction} from "zksync";
 
 interface MintFile extends File {
   preview: string
@@ -14,6 +20,9 @@ export enum MintView {
 }
 
 class MintPageStore extends NavigationStore<MintView>{
+
+  @observable
+  private appStore: AppStore
 
   @observable
   file: MintFile | null = null
@@ -29,9 +38,10 @@ class MintPageStore extends NavigationStore<MintView>{
     {mime: "image/png", extension: ".png"}
   ]
 
-  constructor() {
+  constructor(appStore: AppStore) {
     super(MintView.Select)
     makeObservable(this)
+    this.appStore = appStore
   }
 
   onDropAccepted(files: File[]) {
@@ -74,8 +84,24 @@ class MintPageStore extends NavigationStore<MintView>{
     return this.acceptedFileTypes.map(item => item.extension).join(", ")
   }
 
-  submit() {
-    // fetch({method: "POST", url: "/metadata"})
+  async submit() {
+    // fetch({method: "POST", url: "/metadata"}).then(res => postNFTtoAPI)
+    const cid = "QmWxW6vwDZkgMJzTFZqTeTt5ggLJT4BXhTLXQpzMDJ7Zrk"
+    const contentHash = ZKWalletStore.getContentHashFromV0CID(cid)
+    const recipient = await this.appStore.zk.wallet!.address()
+    console.log("recipient", recipient)
+    const tx = await this.appStore.zk.getSignedMintTransaction({
+      recipient,
+      feeToken: "ETH",
+      contentHash,
+    })
+
+    console.log("mint tx:", tx)
+
+    const newProvider = await zksync.getDefaultProvider("rinkeby")
+    const submittedTx = await submitSignedTransaction(tx!, newProvider, false)
+    console.log("submitted TX", submittedTx)
+    return submittedTx
   }
 }
 

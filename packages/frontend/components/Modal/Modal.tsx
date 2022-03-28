@@ -1,7 +1,7 @@
 import * as RadixDialog from '@radix-ui/react-dialog';
 import {css} from "../../helpers/css";
 import React from "react";
-import {MdClose} from "react-icons/Md";
+import {MdClose} from "react-icons/md";
 
 interface DialogProps extends React.ComponentProps<any> {
   open?: boolean;

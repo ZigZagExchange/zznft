@@ -1,25 +1,25 @@
-import {Network} from "zksync/build/types";
-import {objectKeys} from "../helpers/arrays";
+import development from "./development";
+import production from "./production";
 
-export const isDev = () => process.env.NODE_ENV === "development"
+const isDev = () => process.env.NODE_ENV === "development"
+const isProduction = () => process.env.NODE_ENV === "production"
 
-interface Vars {
-  TARGET_CHAIN_ID: number;
-  TARGET_NETWORK_NAME: Network
+interface Environment {
+  api: {
+    baseURL: string;
+    proxyURL?: string;
+  }
+}
+ let env: Environment
+if (isDev()) {
+  env = development
+} else if (isProduction()) {
+  env = production
+} else {
+  throw Error("Could not find correct environment")
 }
 
-export const vars: Vars = {
-  TARGET_CHAIN_ID: Number(process.env.NEXT_PUBLIC_ETHEREUM_TARGET_CHAIN),
-  TARGET_NETWORK_NAME: process.env.NEXT_PUBLIC_ETHEREUM_TARGET_NAME as Network
-}
 
-const assertVars = () => {
-  objectKeys(vars).map(key => {
-    if (vars[key] === undefined) {
-      throw Error(`Missing environment variable: ${key}`)
-    }
-  })
-}
+export {isDev, env as default}
 
-assertVars()
 

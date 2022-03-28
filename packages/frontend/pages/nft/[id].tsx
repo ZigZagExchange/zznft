@@ -40,7 +40,7 @@ export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
           <div className={css("col-span-2", "gap-5")}>
             <Pane title={"Attributes"}>
               <div className={css("grid", "grid-cols-2", "gap-5")}>
-                {metadata.attributes.map(item => <div className={css("bg-black", "p-2")}>
+                {metadata.attributes.map((item, index) => <div key={`metadata-${index}`} className={css("bg-black", "p-2")}>
                   <div className={css("text-sm", "text-neutral-400")}>{item.trait_type}</div>
                   <div>{item.value}</div>
                 </div>)}
