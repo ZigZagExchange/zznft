@@ -12,7 +12,7 @@ import {appStore} from "../../store/App.store";
 import {observer} from "mobx-react";
 import useDisplayName from "../../hooks/useDisplayName";
 import useNetworkWatcher from "../../hooks/useNetworkWatcher";
-import useZkWalletConnector from "../../hooks/useZkWalletWatcher";
+import useZkWalletConnector from "../../hooks/useZkWalletMobxSync";
 
 const ConnectWallet = observer(() => {
   const [{data: accountData}] = useAccount()

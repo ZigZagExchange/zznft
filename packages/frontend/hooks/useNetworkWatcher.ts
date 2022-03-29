@@ -38,6 +38,7 @@ const useNetworkWatcher = () => {
         }
 
         if (networkData.chain) {
+            console.log("connected chain:", networkData.chain?.id)
             if (networkData.chain?.id !== vars.TARGET_CHAIN_ID && isWindowFocused) {
                 syncChainToTarget()
             } else {

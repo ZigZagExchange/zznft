@@ -6,6 +6,7 @@ import {DevToggle} from "../../environment/Dev";
 import Link from "next/link";
 import {Account, Metadata, NFT} from "../../interfaces";
 import {Http} from "../../services";
+import {m} from "framer-motion";
 
 interface NFTProps {
   nft: NFT;
@@ -13,10 +14,10 @@ interface NFTProps {
   minterAccount: Account;
 }
 
-export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
+export default function NonFungible({nft, ownerAccount, minterAccount}: NFTProps) {
   const metadata = nft.metadata as Metadata
-  return <div className={css("mt-5", "px-24")}>
-    {metadata && <div>
+  return <>
+    {metadata && <div className={css("mt-5", "px-24")}>
       <div>
         <div className={css("w-100", "px-8", "py-28", "flex", "justify-center", "items-center")}>
           <img src={metadata.image}/>
@@ -84,21 +85,28 @@ export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
       </DevToggle>
     </div>}
 
-    {!metadata && <div>
+    {!metadata && <div className={css("w-full", "h-full", "flex", "justify-center", "items-center")}>
       <div>No metadata found 🥸</div>
     </div>}
-  </div>
+  </>
 }
 
 export const getServerSideProps: GetServerSideProps<NFTProps> = async (context) => {
   const {id} = context.query
-  const nft: NFT = await Http.get("/nft", {params: {token_id: Number(id)}})
+  const nftRes = await Http.get<NFT>("/nft", {params: {token_id: Number(id)}})
+  const nft = nftRes.data
+  console.log("debug:: nft", nft)
   if (!nft) {
     throw Error("Could not find token")
   }
 
-  const ownerAccount: Account = await Http.get("/account", {params: {id: nft.ownerId}})
-  const minterAccount: Account = await Http.get("/account", {params: {id: nft.minterId}})
+  // TODO: need actual accounts here
+  const ownerRes = await Http.get<Account[]>("/account", {params: {id: nft.ownerId}})
+  const ownerAccount = ownerRes.data[0]
+
+  const minterRes = await Http.get<Account[]>("/account", {params: {id: nft.minterId}})
+  const minterAccount = minterRes.data[0]
+
   if (!ownerAccount || !minterAccount) {
     throw Error("Could not get owner or minter account")
   }

@@ -16,11 +16,8 @@ export class AppStore {
   @observable
   auth: AuthStore
 
-  id: number
-
    constructor() {
      makeObservable(this)
-     this.id = Math.random()
      this.auth = new AuthStore()
    }
 
@@ -35,11 +32,8 @@ function initializeStore(initialData = null) {
   let _store: AppStore
   if (store) {
     _store = store
-    console.log(`👴 old store still here: ${_store.id}`)
   } else {
-    const id = Math.random()
     _store = new AppStore()
-    console.log(`🌚 create new app store: ${_store.id}`)
   }
 
   // If your page has Next.js data fetching methods that use a Mobx store, it will

@@ -3,12 +3,16 @@ import {GetServerSideProps} from "next";
 import {useRouter} from "next/router";
 import {useEnsAvatar, useEnsLookup} from "wagmi";
 import {css} from "../../helpers/css";
-import {abbreviate, isValidEthereumAddress} from "../../helpers/strings";
 import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
 import {objectKeys} from "../../helpers/arrays";
 import {Account, NFT} from "../../interfaces";
 import useDisplayName from "../../hooks/useDisplayName";
+import {ethers} from "ethers";
+import * as zksync from "zksync"
+import {NFT as zkNFT} from "zksync/build/types";
+import {vars} from "../../environment/vars";
+import nftMetadata from "../../mocks/nftMetadata";
 
 interface AddressProps {
   nftsOwned: NFT[]
@@ -79,9 +83,58 @@ export const getServerSideProps: GetServerSideProps<AddressProps> = async (conte
   let nftsMinted: any[] = []
   let nftsOwned: any[] = []
   // TODO: I need query param here for specific account
-  // account = await Http.get("/account")
-  // nftsMinted = await Http.get("/nft/minted")
-  // nftsOwned = await Http.get("/nft/owned")
-  return {props: {account, nftsMinted, nftsOwned}}
+  // account = await Http.get<Account>("/account")
+  // nftsMinted = await Http.get<Account>("/nft/minted")
+  // nftsOwned = await Http.get<Account>("/nft/owned")
+  return {props: {...await getNftsFromChain(displayName as string), account}}
 }
 
+// TODO: waiting on API
+const getNftsFromChain = async (address: string) => {
+  let nftsOwned: NFT[] = []
+  let nftsMinted: NFT[] = []
+
+  let committedNFTs: zkNFT[] = []
+  let committedMintedNFTs: zkNFT[] = []
+
+  try {
+    try {
+      const validAddress = ethers.utils.getAddress(address as string)
+      const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
+      const state = await syncProvider.getState(validAddress)
+      committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
+      committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
+
+      nftsOwned = committedNFTs.map(nft => ({
+        address,
+        token_id: nft.id.toString(),
+        metadata: nftMetadata,
+        createdAt: new Date().toDateString(),
+        updatedAt: new Date().toDateString(),
+        id: "asdlfkj",
+        ownerId: "asldkfj",
+        minterId: "asdlfkj"
+      }))
+      nftsMinted = committedMintedNFTs.map(nft => ({
+        address,
+        token_id: nft.id.toString(),
+        metadata: nftMetadata,
+        createdAt: new Date().toDateString(),
+        updatedAt: new Date().toDateString(),
+        id: "asdlfkj",
+        ownerId: "asldkfj",
+        minterId: "asdlfkj"
+      }))
+
+    } catch (e) {
+
+    }
+  } catch (e) {
+    console.error("debug:: error hit", e)
+  }
+
+  return {
+    nftsOwned,
+    nftsMinted
+  }
+}

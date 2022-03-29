@@ -8,6 +8,8 @@ import NFTPreview from "../components/NFTPreview/NFTPreview";
 import {siteTitle} from "../constants";
 import {NFT} from "../interfaces";
 import {Http} from "../services";
+import * as zksync from "zksync"
+import {vars} from "../environment/vars";
 
 interface HomeProps {
   feed: NFT[]
@@ -37,14 +39,13 @@ const Home = observer(({feed}: HomeProps) => {
 export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
   let feed: NFT[] = []
   try {
-    feed = await Http.get("/nft")
+    const {data} = await Http.get<NFT[]>("/nft")
+    feed = data
   } catch (e) {
     // console.error(e)
+    throw new Error("Could not find NFTs")
   }
-
-  return {
-    props: {feed}
-  }
+  return {props: {feed}}
 }
 
 export default Home

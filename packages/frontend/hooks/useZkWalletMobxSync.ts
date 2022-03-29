@@ -4,7 +4,7 @@ import {Signer} from "ethers";
 import {vars} from "../environment/vars";
 import {appStore} from "../store/App.store";
 
-const useZkWalletConnector = () => {
+const useZkWalletMobxSync = () => {
     const [{data: signer}] = useSigner()
     const [{data: networkData}] = useNetwork()
     const [{data: accountData}, disconnect] = useAccount()
@@ -42,4 +42,4 @@ const useZkWalletConnector = () => {
     }
 }
 
-export default useZkWalletConnector
+export default useZkWalletMobxSync
