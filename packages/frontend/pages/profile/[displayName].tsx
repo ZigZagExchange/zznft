@@ -8,6 +8,7 @@ import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
 import {objectKeys} from "../../helpers/arrays";
 import {Account, NFT} from "../../interfaces";
+import useDisplayName from "../../hooks/useDisplayName";
 
 interface AddressProps {
   nftsOwned: NFT[]
@@ -25,7 +26,7 @@ export default function DisplayName({nftsOwned, nftsMinted, account}: AddressPro
   const {address} = router.query
   const [{data: ens}] = useEnsLookup({address: address as string})
   const [{data: avatar}] = useEnsAvatar({addressOrName: ens})
-  const displayName = ens ? ens : abbreviate(address as string)
+  const {displayName} = useDisplayName(account?.address)
   const [tab, setTab] = useState<Tabs>(Tabs.Collection)
 
   return <>
