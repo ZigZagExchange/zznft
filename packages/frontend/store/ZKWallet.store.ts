@@ -5,6 +5,7 @@ import {Address, Network, Nonce, TokenLike} from "zksync/build/types";
 import * as zksync from "zksync"
 import {CID} from "multiformats";
 import {base16} from "multiformats/bases/base16";
+import {debugToast, errorToast} from "../components/Toast/toast";
 
 
 class ZKWalletStore {
@@ -33,19 +34,10 @@ class ZKWalletStore {
 
   set wallet(wallet: Wallet | null) {
     this._zkWallet = wallet
-    if (this.wallet) {
-      this.walletInit()
-    }
   }
 
   get wallet() {
     return this._zkWallet
-  }
-
-  @action
-  async walletInit() {
-    const balance = await this.wallet?.getBalance("ETH")
-    this.ethBalance = balance ? balance : null
   }
 
   @action
@@ -56,19 +48,33 @@ class ZKWalletStore {
 
   @action
   async connect(signer: ethers.Signer) {
-    console.log("attempting to connect to zkwallet")
     this.isWalletConnecting = true
-
     try {
-      console.log("debug:: attempting to connect with", await signer.getChainId())
-      // const signerNetwork = await signer.provider!.getNetwork()
-      this.syncProvider = await zksync.getDefaultProvider("rinkeby")
+      debugToast(`Connecting to zkSync on chain ID: ${await signer.getChainId()}`)
+      const signerNetwork = await signer.provider!.getNetwork()
+      this.syncProvider = await zksync.getDefaultProvider(signerNetwork.name as Network)
       this.wallet = await zksync.Wallet.fromEthSigner(signer, this.syncProvider)
+      const isSigningKeySet = await this.wallet.isSigningKeySet()
+      if (!isSigningKeySet) {
+        await this.unlockAccount()
+      }
     } catch (e) {
       throw Error("Could not connect to zksync wallet")
     } finally {
       this.isWalletConnecting = false
     }
+  }
+
+  async unlockAccount() {
+    const accountId = await this.wallet!.getAccountId()
+    if (accountId === undefined) {
+      throw new Error("Unknown account")
+    }
+    const tx = await this.wallet?.setSigningKey({
+      feeToken: "ETH",
+      ethAuthType: "ECDSA"
+    })
+    return await tx?.awaitReceipt()
   }
 
   async getSignedMintTransaction(mintNFT: {
@@ -86,7 +92,7 @@ class ZKWalletStore {
       mintNFT.fee = fullFee!.totalFee;
     }
 
-    return this.wallet!.signMintNFT(mintNFT as any);
+    return await this.wallet!.signMintNFT(mintNFT as any);
   }
 
   @computed

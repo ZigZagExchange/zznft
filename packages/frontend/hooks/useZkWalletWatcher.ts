@@ -6,14 +6,10 @@ import {Signer} from "ethers";
 import {vars} from "../environment/vars";
 
 const useZkWalletConnector = () => {
-    // sets zkwallet to app store
-
     const store = useAppStore()
     const [{data: signer}] = useSigner()
-    const [{data: networkData}, changeNetwork] = useNetwork()
+    const [{data: networkData}] = useNetwork()
     const [{data: accountData}, disconnect] = useAccount()
-    const [{loading}] = useConnect()
-
     useEffect(() => {
         const getZkWallet = async (_signer: Signer) => {
             try {

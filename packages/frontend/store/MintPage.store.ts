@@ -89,14 +89,12 @@ class MintPageStore extends NavigationStore<MintView>{
     const cid = "QmWxW6vwDZkgMJzTFZqTeTt5ggLJT4BXhTLXQpzMDJ7Zrk"
     const contentHash = ZKWalletStore.getContentHashFromV0CID(cid)
     const recipient = await this.appStore.zk.wallet!.address()
-    console.log("recipient", recipient)
+
     const tx = await this.appStore.zk.getSignedMintTransaction({
       recipient,
       feeToken: "ETH",
       contentHash,
     })
-
-    console.log("mint tx:", tx)
 
     const newProvider = await zksync.getDefaultProvider("rinkeby")
     const submittedTx = await submitSignedTransaction(tx!, newProvider, false)

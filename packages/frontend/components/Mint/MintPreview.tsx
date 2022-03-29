@@ -3,6 +3,7 @@ import MintPageStore, {MintView} from "../../store/MintPage.store";
 import {css} from "../../helpers/css";
 import MediaInput from "./MediaInput";
 import Button, {ButtonType} from "../Button/Button";
+import {errorToast} from "../Toast/toast";
 
 const MintPreview = observer(({store}: {store: MintPageStore}) => {
   return <div className={css("grid", "grid-cols-2", "gap-16")}>
@@ -30,6 +31,7 @@ const MintPreview = observer(({store}: {store: MintPageStore}) => {
             })
             .catch(e => {
               console.error(e)
+              errorToast("Could not mint NFT")
             })
         }}>mint</Button>
       </div>
