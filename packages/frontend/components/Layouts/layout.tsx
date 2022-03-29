@@ -4,7 +4,6 @@ import classNames from "classnames";
 import Link from "next/link";
 import ConnectWallet from "../ConnectWallet/ConnectWallet";
 import {css} from "../../helpers/css";
-import {useAppStore} from "../../store/App.store";
 import Button from "../Button/Button";
 import {useRouter} from "next/router";
 import {observer} from "mobx-react";
@@ -12,6 +11,7 @@ import {isDev} from "../../environment";
 import {siteTitle} from "../../constants";
 import {useNetwork} from "wagmi";
 import { motion } from "framer-motion";
+import {appStore} from "../../store/App.store";
 
 interface LayoutProps {
   children: any;
@@ -43,7 +43,6 @@ const Layout = ({children}: LayoutProps) => {
 }
 
 const Header = observer(() => {
-  const store = useAppStore()
   const router = useRouter()
 
   return <div>
@@ -59,7 +58,7 @@ const Header = observer(() => {
       </div>
       <div className={css("flex")}>
         <div className={css("mr-4")}>
-          {store.zk.isConnected && <Button onClick={() => router.push("/mint")}>+</Button>}
+          {appStore.auth.isAuthed && <Button onClick={() => router.push("/mint")}>+</Button>}
         </div>
         <ConnectWallet/>
       </div>

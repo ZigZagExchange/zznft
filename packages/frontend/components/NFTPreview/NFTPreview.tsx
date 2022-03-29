@@ -1,12 +1,9 @@
-import {jsonify} from "../../helpers/strings";
 import {css} from "../../helpers/css";
 import {useRouter} from "next/router";
-import {nfts} from "@prisma/client";
-import {Metadata} from "../../pages/nft/[id]";
-import {DevToggle} from "../../environment/Dev";
+import {Metadata, NFT} from "../../interfaces";
 
 interface NFTPreviewProps {
-  nft: nfts;
+  nft: NFT;
   showDetails?: boolean;
 }
 

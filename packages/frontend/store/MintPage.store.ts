@@ -3,7 +3,7 @@ import {FileRejection} from "react-dropzone";
 import {errorToast} from "../components/Toast/toast";
 import NavigationStore from "./Navigation.store";
 import ZKWalletStore from "./ZKWallet.store";
-import {AppStore} from "./App.store";
+import {appStore, AppStore} from "./App.store";
 import {sleep} from "zksync/build/utils";
 import * as zksync from "zksync"
 import {vars} from "../environment/vars";
@@ -22,9 +22,6 @@ export enum MintView {
 class MintPageStore extends NavigationStore<MintView>{
 
   @observable
-  private appStore: AppStore
-
-  @observable
   file: MintFile | null = null
 
   @observable
@@ -38,10 +35,9 @@ class MintPageStore extends NavigationStore<MintView>{
     {mime: "image/png", extension: ".png"}
   ]
 
-  constructor(appStore: AppStore) {
+  constructor() {
     super(MintView.Select)
     makeObservable(this)
-    this.appStore = appStore
   }
 
   onDropAccepted(files: File[]) {
@@ -88,9 +84,10 @@ class MintPageStore extends NavigationStore<MintView>{
     // fetch({method: "POST", url: "/metadata"}).then(res => postNFTtoAPI)
     const cid = "QmWxW6vwDZkgMJzTFZqTeTt5ggLJT4BXhTLXQpzMDJ7Zrk"
     const contentHash = ZKWalletStore.getContentHashFromV0CID(cid)
-    const recipient = await this.appStore.zk.wallet!.address()
+    // const recipient = await this.appStore.zk.wallet!.address()
 
-    const tx = await this.appStore.zk.getSignedMintTransaction({
+    const recipient = await appStore.auth.wallet!.address()
+    const tx = await appStore.auth.getSignedMintTransaction({
       recipient,
       feeToken: "ETH",
       contentHash,

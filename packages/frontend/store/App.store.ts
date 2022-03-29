@@ -4,6 +4,7 @@ import {enableStaticRendering} from "mobx-react";
 import {useMemo} from "react";
 import {BigNumber, BigNumberish} from "ethers";
 import ZKWalletStore from "./ZKWallet.store";
+import AuthStore from "./Auth.store";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 enableStaticRendering(typeof window === 'undefined')
@@ -13,11 +14,14 @@ let store: AppStore | null = null
 export class AppStore {
 
   @observable
-  zk: ZKWalletStore
+  auth: AuthStore
+
+  // @observable
+  // zk: ZKWalletStore
 
    constructor() {
      makeObservable(this)
-     this.zk = new ZKWalletStore()
+     this.auth = new AuthStore()
    }
 
   @action
@@ -28,7 +32,14 @@ export class AppStore {
 
 
 function initializeStore(initialData = null) {
-  const _store = store ?? new AppStore()
+  let _store: AppStore
+  if (store) {
+    console.log(`old store still here: ${new Date().getTime() / 1000}`)
+    _store = store
+  } else {
+    console.log(`create new app store: ${new Date().getTime() / 1000}`)
+    _store = new AppStore()
+  }
 
   // If your page has Next.js data fetching methods that use a Mobx store, it will
   // get hydrated here, check `pages/ssg.js` and `pages/ssr.js` for more details
@@ -43,7 +54,4 @@ function initializeStore(initialData = null) {
   return _store
 }
 
-
-export function useAppStore() {
-  return useMemo(() => initializeStore(), [])
-}
+export const appStore = initializeStore()

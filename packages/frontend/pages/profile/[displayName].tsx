@@ -7,13 +7,12 @@ import {abbreviate, isValidEthereumAddress} from "../../helpers/strings";
 import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
 import {objectKeys} from "../../helpers/arrays";
-import {nfts, PrismaClient} from "@prisma/client";
-import {accounts} from "@prisma/client/";
+import {Account, NFT} from "../../interfaces";
 
 interface AddressProps {
-  nftsOwned: nfts[]
-  nftsMinted: nfts[]
-  account: accounts
+  nftsOwned: NFT[]
+  nftsMinted: NFT[]
+  account: Account | null
 }
 
 enum Tabs {
@@ -74,27 +73,14 @@ export const getServerSideProps: GetServerSideProps<AddressProps> = async (conte
   if (!displayName) {
     throw Error("No address")
   }
-  // TODO: how can address here be string[]?
-  return {props: getNftsFromDB(displayName as string)}
+
+  let account = null
+  let nftsMinted: any[] = []
+  let nftsOwned: any[] = []
+  // TODO: I need query param here for specific account
+  // account = await Http.get("/account")
+  // nftsMinted = await Http.get("/nft/minted")
+  // nftsOwned = await Http.get("/nft/owned")
+  return {props: {account, nftsMinted, nftsOwned}}
 }
 
-const getNftsFromDB = async (address: string) => {
-  const prisma = new PrismaClient()
-  let nftsMinted: nfts[] = []
-  let nftsOwned: nfts[] = []
-  let account: accounts | null
-
-  if (isValidEthereumAddress(address)) {
-    account = await prisma.accounts.findFirst({where: {address: address}})
-  } else {
-    account = await prisma.accounts.findFirst({where: {display_name: address}})
-  }
-
-  if (!account) {
-    throw Error("Could not find account")
-  }
-
-  nftsMinted = await prisma.nfts.findMany({where: {creator_id: account.id}})
-  nftsOwned = await prisma.nfts.findMany({where: {owner_id: account.id}})
-  return {nftsMinted, nftsOwned, account}
-}

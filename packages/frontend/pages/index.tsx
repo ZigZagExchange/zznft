@@ -4,12 +4,13 @@ import TextField from "../components/TextField/TextField";
 import {useState} from "react";
 import {css} from "../helpers/css";
 import {GetServerSideProps} from "next";
-import {nfts, PrismaClient} from "@prisma/client";
 import NFTPreview from "../components/NFTPreview/NFTPreview";
 import {siteTitle} from "../constants";
+import {NFT} from "../interfaces";
+import {Http} from "../services";
 
 interface HomeProps {
-  feed: nfts[]
+  feed: NFT[]
 }
 
 const Home = observer(({feed}: HomeProps) => {
@@ -34,13 +35,11 @@ const Home = observer(({feed}: HomeProps) => {
 })
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
-  let feed: nfts[] = []
-
+  let feed: NFT[] = []
   try {
-    const prisma = new PrismaClient()
-    feed = await prisma.nfts.findMany()
+    feed = await Http.get("/nft")
   } catch (e) {
-    console.error(e)
+    // console.error(e)
   }
 
   return {

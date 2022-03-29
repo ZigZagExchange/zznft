@@ -13,10 +13,7 @@ class ZKWalletStore {
   private syncProvider: Provider | null = null
 
   @observable
-  private _zkWallet: Wallet | null = null
-
-  @observable
-  ethBalance: BigNumber | null = null
+  wallet: Wallet | null = null
 
   @observable
   isWalletConnecting = false
@@ -32,18 +29,10 @@ class ZKWalletStore {
     return '0x' + cidString.slice(cidLength - 64, cidLength + 1)
   }
 
-  set wallet(wallet: Wallet | null) {
-    this._zkWallet = wallet
-  }
-
-  get wallet() {
-    return this._zkWallet
-  }
-
   @action
   disconnect() {
     this.wallet = null
-    this.ethBalance = null
+    this.isWalletConnecting = false
   }
 
   @action
@@ -54,12 +43,9 @@ class ZKWalletStore {
       const signerNetwork = await signer.provider!.getNetwork()
       this.syncProvider = await zksync.getDefaultProvider(signerNetwork.name as Network)
       this.wallet = await zksync.Wallet.fromEthSigner(signer, this.syncProvider)
-      const isSigningKeySet = await this.wallet.isSigningKeySet()
-      if (!isSigningKeySet) {
+      if (!await this.wallet.isSigningKeySet()) {
         await this.unlockAccount()
       }
-    } catch (e) {
-      throw Error("Could not connect to zksync wallet")
     } finally {
       this.isWalletConnecting = false
     }
@@ -67,8 +53,11 @@ class ZKWalletStore {
 
   async unlockAccount() {
     const accountId = await this.wallet!.getAccountId()
-    if (accountId === undefined) {
-      throw new Error("Unknown account")
+    console.log("account id:", accountId)
+    if (accountId === undefined || accountId === null) {
+      // TODO: show some pretty modal linking to the zigzag bridge to deposit assets
+      errorToast("Please deposit some assets to zkSync to initialize your account")
+      throw new Error("zkSync account does not exist")
     }
     const tx = await this.wallet?.setSigningKey({
       feeToken: "ETH",
@@ -96,7 +85,7 @@ class ZKWalletStore {
   }
 
   @computed
-  get isConnected() {
+  get isWalletConnected() {
     return this.wallet!!
   }
 }

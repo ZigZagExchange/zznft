@@ -1,34 +1,31 @@
-import {useAppStore} from "../store/App.store";
-import {useAccount, useConnect, useNetwork, useSigner} from "wagmi";
+import {useAccount, useNetwork, useSigner} from "wagmi";
 import {useEffect} from "react";
-import {errorToast} from "../components/Toast/toast";
 import {Signer} from "ethers";
 import {vars} from "../environment/vars";
+import {appStore} from "../store/App.store";
 
 const useZkWalletConnector = () => {
-    const store = useAppStore()
     const [{data: signer}] = useSigner()
     const [{data: networkData}] = useNetwork()
     const [{data: accountData}, disconnect] = useAccount()
     useEffect(() => {
         const getZkWallet = async (_signer: Signer) => {
             try {
-                await store.zk.connect(_signer)
+                await appStore.auth.connect(_signer)
             } catch (e) {
-                console.error("debug:: error connecting to zksync wallet", e)
-                errorToast("Could not get zkWallet")
+                console.error(e)
                 disconnect()
-                store.zk.disconnect()
+                appStore.auth.logout()
             }
         }
 
         const runSync = async () => {
             try {
                 if (signer && networkData.chain?.id === vars.TARGET_CHAIN_ID) {
-                    const zkAddress = store.zk.wallet?.address()
+                    const zkAddress = appStore.auth.wallet?.address()
                     const accountAddress = accountData?.address
                     console.log("checking zkAddress & accountAddress", zkAddress, accountAddress)
-                    if (zkAddress !== accountAddress && !store.zk.isWalletConnecting) {
+                    if (zkAddress !== accountAddress && !appStore.auth.isWalletConnecting) {
                         await getZkWallet(signer)
                     }
                 }
@@ -41,7 +38,7 @@ const useZkWalletConnector = () => {
 
     }, [signer, accountData?.address, networkData.chain?.id])
     return  {
-        isZkWalletConnected: store.zk.isConnected
+        isZkWalletConnected: appStore.auth.isWalletConnected
     }
 }
 

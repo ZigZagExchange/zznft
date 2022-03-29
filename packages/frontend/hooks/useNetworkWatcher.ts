@@ -1,16 +1,15 @@
 import {useAccount, useNetwork} from "wagmi";
-import {useAppStore} from "../store/App.store";
 import useWindowFocus from "./useWindowFocus";
 import {useEffect, useState} from "react";
 import {errorToast} from "../components/Toast/toast";
 import {vars} from "../environment/vars";
+import {appStore} from "../store/App.store";
 
 const useNetworkWatcher = () => {
     // forces user to be connected the correct network
 
     const [{data: networkData}, changeNetwork] = useNetwork()
     const [, disconnect] = useAccount()
-    const store = useAppStore()
     const {isWindowFocused} = useWindowFocus()
     const [isTargetChainConnected, setIsTargetChainConnected] = useState(false)
 
@@ -22,18 +21,18 @@ const useNetworkWatcher = () => {
                     setIsTargetChainConnected(true)
                     if (error) {
                         console.log("debug:: changeNetwork hit", error)
-                        throw Error()
+                        throw new Error("Error connecting to correct network")
                     }
                 } catch (e) {
                     errorToast("Please reconnect on correct chain")
                     disconnect()
-                    store.zk.disconnect()
+                    appStore.auth.logout()
                     setIsTargetChainConnected(false)
                 }
             } else {
                 errorToast("Please reconnect on correct chain")
                 disconnect()
-                store.zk.disconnect()
+                appStore.auth.logout()
                 setIsTargetChainConnected(false)
             }
         }

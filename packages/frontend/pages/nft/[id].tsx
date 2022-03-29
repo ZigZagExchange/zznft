@@ -3,22 +3,14 @@ import {jsonify} from "../../helpers/strings";
 import {css} from "../../helpers/css";
 import Pane from "../../components/Pane/Pane";
 import {DevToggle} from "../../environment/Dev";
-import {accounts, Prisma} from "@prisma/client/";
-import {nfts, PrismaClient} from "@prisma/client";
 import Link from "next/link";
-
-export interface Metadata extends Prisma.JsonObject {
-  description: string;
-  external_url?: string;
-  image: string;
-  name: string;
-  attributes: {trait_type: string, value: string}[]
-}
+import {Account, Metadata, NFT} from "../../interfaces";
+import {Http} from "../../services";
 
 interface NFTProps {
-  nft: nfts;
-  ownerAccount: accounts;
-  minterAccount: accounts;
+  nft: NFT;
+  ownerAccount: Account;
+  minterAccount: Account;
 }
 
 export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
@@ -32,7 +24,7 @@ export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
         <div className={css("flex", "justify-between", "items-center", "mt-10")}>
           <div className={css("text-3xl")}>{metadata.name}</div>
           <div>
-            <div>{ownerAccount.display_name}</div>
+            <div>{ownerAccount.displayName}</div>
             <div className={css("text-right", "text-sm", "text-neutral-400")}>owner</div>
           </div>
         </div>
@@ -68,8 +60,8 @@ export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
               <div className={css("flex", "justify-between")}>
                 <div className={css("text-neutral-400")}>Creator</div>
 
-                <Link href={`/profile/${minterAccount.display_name}`}>
-                  <a className={css("hover:underline")}>{minterAccount.display_name}</a>
+                <Link href={`/profile/${minterAccount.displayName}`}>
+                  <a className={css("hover:underline")}>{minterAccount.displayName}</a>
                 </Link>
               </div>
             </Pane>
@@ -100,14 +92,13 @@ export default function NFT({nft, ownerAccount, minterAccount}: NFTProps) {
 
 export const getServerSideProps: GetServerSideProps<NFTProps> = async (context) => {
   const {id} = context.query
-
-  const prisma = new PrismaClient()
-  const nft = await prisma.nfts.findFirst({where: {token_id: Number(id)}})
+  const nft: NFT = await Http.get("/nft", {params: {token_id: Number(id)}})
   if (!nft) {
     throw Error("Could not find token")
   }
-  const ownerAccount = await prisma.accounts.findFirst({where: {id: nft.owner_id}})
-  const minterAccount = await prisma.accounts.findFirst({where: {id: nft.creator_id}})
+
+  const ownerAccount: Account = await Http.get("/account", {params: {id: nft.ownerId}})
+  const minterAccount: Account = await Http.get("/account", {params: {id: nft.minterId}})
   if (!ownerAccount || !minterAccount) {
     throw Error("Could not get owner or minter account")
   }

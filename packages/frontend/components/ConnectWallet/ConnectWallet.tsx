@@ -8,7 +8,7 @@ import {connectorIds, connectorImageSrcMap} from "../../config/connectors";
 import Image from "next/image"
 import {debugToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
-import {useAppStore} from "../../store/App.store";
+import {appStore} from "../../store/App.store";
 import {observer} from "mobx-react";
 import useDisplayName from "../../hooks/useDisplayName";
 import useNetworkWatcher from "../../hooks/useNetworkWatcher";
@@ -89,7 +89,6 @@ const WalletConnected = () => {
   const [{data}, disconnect] = useAccount({fetchEns: true})
   const {displayName} = useDisplayName(data?.address)
   const [{data: networkData}] = useNetwork()
-  const store = useAppStore()
   return <Dropdown trigger={<Button>{displayName}</Button>}>
     <Dropdown.Item>
       <Link href={`/profile/${data!.address}`}>
@@ -99,7 +98,7 @@ const WalletConnected = () => {
     <Dropdown.Item>
       <a onClick={() => {
         disconnect()
-        store.zk.disconnect()
+        appStore.auth.logout()
         debugToast("Disconnected")
       }}
          className={css("hover:cursor-pointer", "hover:underline", "text-lg")}>
