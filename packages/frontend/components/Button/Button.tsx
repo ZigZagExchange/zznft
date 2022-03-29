@@ -1,5 +1,6 @@
 import React from "react";
 import classNames, {Argument} from "classnames";
+import {css} from "../../helpers/css";
 
 export enum ButtonType {
   Primary = 'primary',
@@ -12,7 +13,7 @@ export enum ButtonSize {
   lg = 'lg'
 }
 
-const buttonHoverStyle = ["hover:bg-gradient-to-r", "from-zz-50", "via-zz-100","to-zz-150"]
+const buttonHoverStyle = ["hover:bg-gradient-to-r", "from-zz-50", "via-zz-100", "to-zz-150"]
 
 const buttonVariantStyles = {
   [ButtonType.Primary]: ["bg-neutral-800", ...buttonHoverStyle],
@@ -27,26 +28,38 @@ const buttonSizeStyles = {
 
 interface ButtonProps {
   onClick?: () => void;
-  children: any;
-  variant?: ButtonType,
+  type?: ButtonType,
   size?: ButtonSize,
   block?: boolean,
   className?: Argument
 }
 
-const Button = ({
-                  onClick,
-                  children,
-                  variant = ButtonType.Primary,
-                  size = ButtonSize.sm,
-                  block,
-                  className
-}: ButtonProps) => {
+const Button: React.FC<ButtonProps> = ({
+                                         onClick,
+                                         children,
+                                         type = ButtonType.Primary,
+                                         size = ButtonSize.sm,
+                                         block,
+                                         className
+                                       }) => {
   return <button
+    type={"button"}
     onClick={onClick && onClick}
-    className={classNames(buttonVariantStyles[variant], buttonSizeStyles[size], "font-mono", {"w-full": block}, className)}
+    className={css(buttonVariantStyles[type], buttonSizeStyles[size], "font-mono", {"w-full": block}, className)}
   >
     {children}
+  </button>
+}
+
+interface SubmitProps extends Pick<ButtonProps, "onClick" | "block"> {
+  label?: string;
+}
+
+export const Submit: React.FC<SubmitProps> = ({onClick, label}) => {
+  return <button onClick={onClick && onClick}
+                 className={css(buttonVariantStyles[ButtonType.Primary], buttonSizeStyles[ButtonSize.sm])}
+                 type={"submit"}>
+    {label ? label : "Submit"}
   </button>
 }
 

@@ -6,9 +6,9 @@ export enum PaneSize {
   md = "md"
 }
 
-interface PaneProps {
-  size?: PaneSize;
-  title?: string
+export enum PaneType {
+  Dark = "dark",
+  Light = "light"
 }
 
 const sizeStyles = {
@@ -16,8 +16,21 @@ const sizeStyles = {
   [PaneSize.md]: ["p-8"]
 }
 
-const Pane: React.FC<PaneProps> = ({size = PaneSize.sm, title, children}) => {
-  return <div className={css(sizeStyles[size], "bg-neutral-900", "h-full", "w-full")}>
+const typeStyles = {
+  [PaneType.Dark]: ["bg-black"],
+  [PaneType.Light]: ["bg-neutral-900"]
+}
+
+
+interface PaneProps {
+  size?: PaneSize;
+  title?: string;
+  className?: string;
+  type?: PaneType
+}
+
+const Pane: React.FC<PaneProps> = ({size = PaneSize.sm, type = PaneType.Light, title, className, children}) => {
+  return <div className={css(sizeStyles[size], typeStyles[type], "h-full", "w-full", className)}>
     {title && <div className={css("mb-3", "text-xl")}>{title}</div>}
     {children}
   </div>

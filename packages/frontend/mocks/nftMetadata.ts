@@ -17,7 +17,8 @@
 }
 */
 
-import {Metadata} from "../pages/nft/[id]";
+
+import {Metadata} from "../interfaces";
 
 const nftMetadata: Metadata = {
   description: "They say a picture is worth a thousand words. Instead I am asking for\n" +

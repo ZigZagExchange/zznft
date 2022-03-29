@@ -1,17 +1,25 @@
-import {useEnsLookup} from "wagmi";
-import {abbreviate} from "../helpers/strings";
+import {abbreviate, isValidEthereumAddress} from "../helpers/strings";
+import {appStore} from "../store/App.store";
 
 const useDisplayName = (address?: string) => {
-  const [{ data, error, loading }] = useEnsLookup({address})
+  // const [{ data, error, loading }] = useEnsLookup({address})
   let displayName
   if (address) {
-    displayName = data ? data : abbreviate(address)
+    if (appStore.auth.account) {
+      displayName = appStore.auth.account.displayName
+    } else {
+      displayName = abbreviate(address)
+    }
+  }
+
+  if (displayName) {
+    if (isValidEthereumAddress(displayName)) {
+      displayName = abbreviate(displayName)
+    }
   }
 
   return {
     displayName,
-    error,
-    loading
   }
 }
 

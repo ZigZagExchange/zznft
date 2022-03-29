@@ -1,43 +1,31 @@
 import {GetServerSideProps} from "next";
-import * as zksync from "zksync";
-import {vars} from "../../environment";
-import {NFTInfo} from "zksync/src/types";
-import {jsonfiy} from "../../helpers/strings";
-import nftMetadata from "../../mocks/nftMetadata";
-import {getDisplayName} from "next/dist/shared/lib/utils";
-import useDisplayName from "../../hooks/useDisplayName";
+import {jsonify} from "../../helpers/strings";
 import {css} from "../../helpers/css";
 import Pane from "../../components/Pane/Pane";
-import Dev, {DevToggle} from "../../environment/Dev";
-
-export interface Metadata {
-  description: string;
-  external_url?: string;
-  image: string;
-  name: string;
-  attributes: {trait_type: string, value: string}[]
-}
+import {DevToggle} from "../../environment/Dev";
+import Link from "next/link";
+import {Account, Metadata, NFT} from "../../interfaces";
+import {Http} from "../../services";
+import {m} from "framer-motion";
 
 interface NFTProps {
-  info?: NFTInfo,
-  metadata?: Metadata,
-  owner?: number
+  nft: NFT;
+  ownerAccount: Account;
+  minterAccount: Account;
 }
 
-export default function NFT({info, metadata, owner}: NFTProps) {
-  const {displayName: ownerName} = useDisplayName(info?.address)
-  const {displayName: creatorName} = useDisplayName(info?.creatorAddress)
-
-  return <div className={css("mt-5", "px-24")}>
-    {metadata && <div>
+export default function NonFungible({nft, ownerAccount, minterAccount}: NFTProps) {
+  const metadata = nft.metadata as Metadata
+  return <>
+    {metadata && <div className={css("mt-5", "px-24")}>
       <div>
-        <div className={css("w-100", "bg-neutral-800", "px-8", "py-28", "flex", "justify-center", "items-center")}>
+        <div className={css("w-100", "px-8", "py-28", "flex", "justify-center", "items-center")}>
           <img src={metadata.image}/>
         </div>
         <div className={css("flex", "justify-between", "items-center", "mt-10")}>
           <div className={css("text-3xl")}>{metadata.name}</div>
           <div>
-            <div>{owner}</div>
+            <div>{ownerAccount.displayName}</div>
             <div className={css("text-right", "text-sm", "text-neutral-400")}>owner</div>
           </div>
         </div>
@@ -45,7 +33,7 @@ export default function NFT({info, metadata, owner}: NFTProps) {
           <div className={css("col-span-2", "gap-5")}>
             <Pane title={"Attributes"}>
               <div className={css("grid", "grid-cols-2", "gap-5")}>
-                {metadata.attributes.map(item => <div className={css("bg-black", "p-2")}>
+                {metadata.attributes.map((item, index) => <div key={`metadata-${index}`} className={css("bg-black", "p-2")}>
                   <div className={css("text-sm", "text-neutral-400")}>{item.trait_type}</div>
                   <div>{item.value}</div>
                 </div>)}
@@ -63,64 +51,70 @@ export default function NFT({info, metadata, owner}: NFTProps) {
             <Pane title={"Details"}>
               <div className={css("flex", "justify-between", "mb-3")}>
                 <div className={css("text-neutral-400")}>Token ID</div>
-                <div>{info?.id}</div>
+                <div>{nft.token_id}</div>
               </div>
               <div className={css("flex", "justify-between", "mb-3")}>
                 <div className={css("text-neutral-400")}>Metadata</div>
-                <div>{info?.id}</div>
+                {/*TODO: NEED TO CONVERT contentHash BACK TO CID & LINK TO METADATA IN IPFS*/}
+                <div></div>
               </div>
               <div className={css("flex", "justify-between")}>
                 <div className={css("text-neutral-400")}>Creator</div>
-                <div>{creatorName}</div>
+
+                <Link href={`/profile/${minterAccount.displayName}`}>
+                  <a className={css("hover:underline")}>{minterAccount.displayName}</a>
+                </Link>
               </div>
             </Pane>
           </div>
         </div>
       </div>
 
-
       <DevToggle>
         <div className={css("break-all")}>
           <div>
-            {jsonfiy(info)}
+            {jsonify(ownerAccount)}
           </div>
           <div className={css("mt-5")}>
-            {jsonfiy(metadata)}
+            {jsonify(minterAccount)}
+          </div>
+          <div className={css("mt-5")}>
+            {jsonify(metadata)}
           </div>
         </div>
       </DevToggle>
     </div>}
 
-    {!metadata && <div>
+    {!metadata && <div className={css("w-full", "h-full", "flex", "justify-center", "items-center")}>
       <div>No metadata found 🥸</div>
     </div>}
-  </div>
+  </>
 }
 
 export const getServerSideProps: GetServerSideProps<NFTProps> = async (context) => {
   const {id} = context.query
-  let info
-  let owner
-
-  // TODO: query from IPFS/arweave
-  const metadata = nftMetadata
-
-  const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
-  if (id) {
-    try {
-      info = await syncProvider.getNFT(Number(id))
-      owner = await syncProvider.getNFTOwner(Number(id))
-      console.log("debug:: metadata", metadata)
-    } catch (e) {
-      console.error("Could not get token")
-    }
+  const nftRes = await Http.get<NFT>("/nft", {params: {token_id: Number(id)}})
+  const nft = nftRes.data
+  console.log("debug:: nft", nft)
+  if (!nft) {
+    throw Error("Could not find token")
   }
 
+  // TODO: need actual accounts here
+  const ownerRes = await Http.get<Account[]>("/account", {params: {id: nft.ownerId}})
+  const ownerAccount = ownerRes.data[0]
+
+  const minterRes = await Http.get<Account[]>("/account", {params: {id: nft.minterId}})
+  const minterAccount = minterRes.data[0]
+
+  if (!ownerAccount || !minterAccount) {
+    throw Error("Could not get owner or minter account")
+  }
   return {
     props: {
-      info,
-      metadata,
-      owner
+      nft,
+      ownerAccount,
+      minterAccount
     }
   }
 }
