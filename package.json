@@ -9,7 +9,6 @@
   "workspaces": ["packages/*"],
   "private": "true",
   "scripts": {
-    "ui:start": "yarn workspace @zznft/frontend run dev",
-    "playroom:start": "yarn workspace @zznft/frontend run playroom:start"
+    "ui:start": "yarn workspace @zznft/frontend run dev"
   }
 }
