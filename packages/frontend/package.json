@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test-coverage": "yarn test --collect-coverage=true"
   },
   "dependencies": {
     "@prisma/client": "^3.11.1",
@@ -15,6 +17,7 @@
     "autoprefixer": "^10.4.2",
     "axios": "^0.26.1",
     "classnames": "^2.3.1",
+    "content-hash": "^2.5.2",
     "ethers": "^5.5.4",
     "final-form": "^4.20.6",
     "framer-motion": "^6.2.8",

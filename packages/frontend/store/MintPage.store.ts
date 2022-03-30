@@ -8,6 +8,9 @@ import {sleep} from "zksync/build/utils";
 import * as zksync from "zksync"
 import {vars} from "../environment/vars";
 import {submitSignedTransaction} from "zksync";
+import {getContentHashFromCID} from "../helpers/strings";
+import {Http} from "../services";
+import {Metadata} from "../interfaces";
 
 interface MintFile extends File {
   preview: string
@@ -81,22 +84,45 @@ class MintPageStore extends NavigationStore<MintView>{
   }
 
   async submit() {
-    // fetch({method: "POST", url: "/metadata"}).then(res => postNFTtoAPI)
-    const cid = "QmWxW6vwDZkgMJzTFZqTeTt5ggLJT4BXhTLXQpzMDJ7Zrk"
-    const contentHash = ZKWalletStore.getContentHashFromV0CID(cid)
-    // const recipient = await this.appStore.zk.wallet!.address()
+    // Build metadata
+    const formData = new FormData()
+    formData.append("asset", this.file!)
+    formData.append("name", this.title)
+    formData.append("description", this.description)
+    formData.append("attributes", "[]")
+    const {data} = await Http.post("/nft/metadata", formData)
+    const {contentHash} = data
 
+    console.log("debug:: contentHash", contentHash)
+
+    // Sign tx & send to server
     const recipient = await appStore.auth.wallet!.address()
     const tx = await appStore.auth.getSignedMintTransaction({
       recipient,
       feeToken: "ETH",
       contentHash,
     })
+    const res = await Http.post("/nft", {tx})
+    console.log("tx sent to network", res)
 
-    const newProvider = await zksync.getDefaultProvider("rinkeby")
-    const submittedTx = await submitSignedTransaction(tx!, newProvider, false)
-    console.log("submitted TX", submittedTx)
-    return submittedTx
+
+
+    // // fetch({method: "POST", url: "/metadata"}).then(res => postNFTtoAPI)
+    // const cid = "QmWxW6vwDZkgMJzTFZqTeTt5ggLJT4BXhTLXQpzMDJ7Zrk"
+    // const contentHash = getContentHashFromCID(cid)
+    // // const recipient = await this.appStore.zk.wallet!.address()
+    //
+    // const recipient = await appStore.auth.wallet!.address()
+    // const tx = await appStore.auth.getSignedMintTransaction({
+    //   recipient,
+    //   feeToken: "ETH",
+    //   contentHash,
+    // })
+    //
+    // const newProvider = await zksync.getDefaultProvider("rinkeby")
+    // const submittedTx = await submitSignedTransaction(tx!, newProvider, false)
+    // console.log("submitted TX", submittedTx)
+    // return submittedTx
   }
 }
 

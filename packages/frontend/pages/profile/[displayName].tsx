@@ -13,6 +13,8 @@ import * as zksync from "zksync"
 import {NFT as zkNFT} from "zksync/build/types";
 import {vars} from "../../environment/vars";
 import nftMetadata from "../../mocks/nftMetadata";
+import {appStore} from "../../store/App.store";
+import {observer} from "mobx-react";
 
 interface AddressProps {
   nftsOwned: NFT[]
@@ -25,17 +27,16 @@ enum Tabs {
   Creation = "Creations"
 }
 
-export default function DisplayName({nftsOwned, nftsMinted, account}: AddressProps) {
+const Profile = observer(({nftsOwned, nftsMinted, account}: AddressProps) => {
   const router = useRouter()
   const {address} = router.query
   const [{data: ens}] = useEnsLookup({address: address as string})
   const [{data: avatar}] = useEnsAvatar({addressOrName: ens})
-  const {displayName} = useDisplayName(account?.address)
   const [tab, setTab] = useState<Tabs>(Tabs.Collection)
 
   return <>
     <Head>
-      <title>{displayName} | zznft</title>
+      <title>{appStore.auth.displayName} | zznft</title>
     </Head>
     <div className={css("flex", "justify-center")}>
       <div className={css("flex", "flex-col", "items-center")}>
@@ -45,7 +46,7 @@ export default function DisplayName({nftsOwned, nftsMinted, account}: AddressPro
             : <div className={css("bg-neutral-800", "w-full", "h-full")}/>}
         </div>
         <div className={css("text-center", "mt-6", "text-2xl")}>
-          {displayName}
+          {appStore.auth.displayName}
         </div>
       </div>
     </div>
@@ -65,13 +66,13 @@ export default function DisplayName({nftsOwned, nftsMinted, account}: AddressPro
       </div>
     </div>
     <div className={css("mt-8")}>
-      <div className={css("flex", "gap-9")}>
+      <div className={css("flex", "gap-9", "flex-wrap", "justify-center")}>
         {tab === Tabs.Collection && nftsOwned.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
         {tab === Tabs.Creation && nftsMinted.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
       </div>
     </div>
   </>
-}
+})
 
 export const getServerSideProps: GetServerSideProps<AddressProps> = async (context) => {
   const {displayName} = context.query
@@ -105,16 +106,19 @@ const getNftsFromChain = async (address: string) => {
       committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
       committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
 
-      nftsOwned = committedNFTs.map(nft => ({
-        address,
-        token_id: nft.id.toString(),
-        metadata: nftMetadata,
-        createdAt: new Date().toDateString(),
-        updatedAt: new Date().toDateString(),
-        id: "asdlfkj",
-        ownerId: "asldkfj",
-        minterId: "asdlfkj"
-      }))
+      nftsOwned = committedNFTs.map(nft => {
+
+        return {
+          address,
+          token_id: nft.id.toString(),
+          metadata: nftMetadata,
+          createdAt: new Date().toDateString(),
+          updatedAt: new Date().toDateString(),
+          id: "asdlfkj",
+          ownerId: "asldkfj",
+          minterId: "asdlfkj"
+        }
+      })
       nftsMinted = committedMintedNFTs.map(nft => ({
         address,
         token_id: nft.id.toString(),
@@ -138,3 +142,5 @@ const getNftsFromChain = async (address: string) => {
     nftsMinted
   }
 }
+
+export default Profile

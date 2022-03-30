@@ -1,8 +1,9 @@
-import {makeObservable, observable} from "mobx";
+import {computed, makeObservable, observable} from "mobx";
 import {Http} from "../services";
 import {Account} from "../interfaces";
 import ZKWalletStore from "./ZKWallet.store";
 import {ethers} from "ethers";
+import {abbreviate, isValidEthereumAddress} from "../helpers/strings";
 
 class AuthStore extends ZKWalletStore {
 
@@ -53,6 +54,20 @@ class AuthStore extends ZKWalletStore {
 
   get isAuthed() {
     return this.account && this.wallet
+  }
+
+  @computed
+  get displayName() {
+    if (this.isAuthed) {
+      if (this.account!.displayName) {
+        const displayName = this.account!.displayName
+        return isValidEthereumAddress(displayName) ? abbreviate(displayName) : displayName
+      } else {
+        return abbreviate(this.account!.address)
+      }
+    } else {
+      return ""
+    }
   }
 
 }

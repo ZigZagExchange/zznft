@@ -1,12 +1,10 @@
 import {action, computed, makeObservable, observable} from "mobx";
 import {Provider, Wallet} from "zksync";
-import {BigNumber, BigNumberish, ethers} from "ethers";
+import {BigNumberish, ethers} from "ethers";
 import {Address, Network, Nonce, TokenLike} from "zksync/build/types";
 import * as zksync from "zksync"
-import {CID} from "multiformats";
-import {base16} from "multiformats/bases/base16";
 import {debugToast, errorToast} from "../components/Toast/toast";
-
+const contentHash = require("content-hash")
 
 class ZKWalletStore {
 
@@ -20,13 +18,6 @@ class ZKWalletStore {
 
   constructor() {
     makeObservable(this)
-  }
-
-  static getContentHashFromV0CID(cidv0: string) {
-    const cidHash = CID.parse(cidv0)
-    const cidString = cidHash.toV1().toString(base16.encoder)
-    const cidLength = cidString.length
-    return '0x' + cidString.slice(cidLength - 64, cidLength + 1)
   }
 
   @action
