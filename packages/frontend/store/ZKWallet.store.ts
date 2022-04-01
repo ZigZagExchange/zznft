@@ -4,6 +4,7 @@ import {BigNumberish, ethers} from "ethers";
 import {Address, Network, Nonce, TokenLike} from "zksync/build/types";
 import * as zksync from "zksync"
 import {debugToast, errorToast} from "../components/Toast/toast";
+import {appStore} from "./App.store";
 const contentHash = require("content-hash")
 
 class ZKWalletStore {
@@ -44,10 +45,11 @@ class ZKWalletStore {
 
   async unlockAccount() {
     const accountId = await this.wallet!.getAccountId()
-    console.log("account id:", accountId)
+    console.log("debug:: account id", accountId)
     if (accountId === undefined || accountId === null) {
-      // TODO: show some pretty modal linking to the zigzag bridge to deposit assets
-      errorToast("Please deposit some assets to zkSync to initialize your account")
+      appStore.modals.hideAll()
+      appStore.modals.isInitializeAccountModalVisible = true
+      debugToast("Account does not exist on zkSync")
       throw new Error("zkSync account does not exist")
     }
     const tx = await this.wallet?.setSigningKey({

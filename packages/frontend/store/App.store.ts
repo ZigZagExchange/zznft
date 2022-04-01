@@ -5,6 +5,7 @@ import {useMemo} from "react";
 import {BigNumber, BigNumberish} from "ethers";
 import ZKWalletStore from "./ZKWallet.store";
 import AuthStore from "./Auth.store";
+import ModalsStore from "./Modals.store";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 enableStaticRendering(typeof window === 'undefined')
@@ -16,10 +17,14 @@ export class AppStore {
   @observable
   auth: AuthStore
 
-   constructor() {
-     makeObservable(this)
-     this.auth = new AuthStore()
-   }
+  @observable
+  modals: ModalsStore
+
+  constructor() {
+    makeObservable(this)
+    this.auth = new AuthStore()
+    this.modals = new ModalsStore()
+  }
 
   @action
   hydrate = (data: AppStore) => {
@@ -35,8 +40,6 @@ function initializeStore(initialData = null) {
   } else {
     _store = new AppStore()
   }
-
-  console.log(_store)
 
   // If your page has Next.js data fetching methods that use a Mobx store, it will
   // get hydrated here, check `pages/ssg.js` and `pages/ssr.js` for more details

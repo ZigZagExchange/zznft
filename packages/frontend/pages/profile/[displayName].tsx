@@ -7,7 +7,6 @@ import NFTPreview from "../../components/NFTPreview/NFTPreview";
 import {useState} from "react";
 import {objectKeys} from "../../helpers/arrays";
 import {Account, NFT} from "../../interfaces";
-import useDisplayName from "../../hooks/useDisplayName";
 import {ethers} from "ethers";
 import * as zksync from "zksync"
 import {NFT as zkNFT} from "zksync/build/types";

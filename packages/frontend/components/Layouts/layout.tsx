@@ -39,6 +39,7 @@ const Layout = ({children}: LayoutProps) => {
         {children}
       </div>
     </main>
+
   </div>
 }
 
