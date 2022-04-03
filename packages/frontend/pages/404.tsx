@@ -1,9 +1,14 @@
 import { css } from "../helpers/css"
 
-const FourOFour = () => {
+interface FourOFourErrorProps {
+  children?: string
+}
+
+const FourOFourError = ({children}: FourOFourErrorProps) => {
   return <div className={css("w-full", "h-full", "flex", "justify-center", "items-center")}>
-    woops, we couldn't find what you were looking for
+    <div>woops, we couldn't find what you were looking for</div>
+    {children && <div>{children}</div>}
   </div>
 }
 
-export default FourOFour
+export default FourOFourError

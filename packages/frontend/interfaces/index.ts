@@ -28,3 +28,5 @@ export interface Metadata {
   name: string;
   attributes: {trait_type: string, value: string}[]
 }
+
+export type ErrorCodes = 400 | 404 | 500

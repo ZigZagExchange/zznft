@@ -6,11 +6,12 @@ import {css} from "../helpers/css";
 import {GetServerSideProps} from "next";
 import NFTPreview from "../components/NFTPreview/NFTPreview";
 import {siteTitle} from "../constants";
-import {NFT} from "../interfaces";
+import {ErrorCodes, NFT} from "../interfaces";
 import {Http} from "../services";
 
 interface HomeProps {
-  feed: NFT[]
+  feed: NFT[];
+  statusCode?: ErrorCodes
 }
 
 const Home = observer(({feed}: HomeProps) => {
@@ -41,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
     feed = data
   } catch (e) {
     console.error(e)
-    throw new Error("Could not find NFTs")
+    return {props: {feed: [], error: {statusCode: 400, message: "No NFTs found. Check back later."}}}
   }
   return {props: {feed}}
 }

@@ -2,7 +2,7 @@ import {useAccount, useNetwork, useSigner} from "wagmi";
 import {useEffect} from "react";
 import {Signer} from "ethers";
 import {vars} from "../environment/vars";
-import {appStore} from "../store/App.store";
+import {AppStore} from "../store/AppStore";
 
 const useZkWalletMobxSync = () => {
     const [{data: signer}] = useSigner()
@@ -11,21 +11,21 @@ const useZkWalletMobxSync = () => {
     useEffect(() => {
         const getZkWallet = async (_signer: Signer) => {
             try {
-                await appStore.auth.connect(_signer)
+                await AppStore.auth.connect(_signer)
             } catch (e) {
                 console.error(e)
                 disconnect()
-                appStore.auth.logout()
+                AppStore.auth.logout()
             }
         }
 
         const runSync = async () => {
             try {
                 if (signer && networkData.chain?.id === vars.TARGET_CHAIN_ID) {
-                    const zkAddress = appStore.auth.wallet?.address()
+                    const zkAddress = AppStore.auth.wallet?.address()
                     const accountAddress = accountData?.address
                     console.log("checking zkAddress & accountAddress", zkAddress, accountAddress)
-                    if (zkAddress !== accountAddress && !appStore.auth.isWalletConnecting) {
+                    if (zkAddress !== accountAddress && !AppStore.auth.isWalletConnecting) {
                         await getZkWallet(signer)
                     }
                 }
@@ -38,7 +38,7 @@ const useZkWalletMobxSync = () => {
 
     }, [signer, accountData?.address, networkData.chain?.id])
     return  {
-        isZkWalletConnected: appStore.auth.isWalletConnected
+        isZkWalletConnected: AppStore.auth.isWalletConnected
     }
 }
 

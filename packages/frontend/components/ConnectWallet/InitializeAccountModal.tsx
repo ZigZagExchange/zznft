@@ -1,14 +1,14 @@
 import {observer} from "mobx-react";
 import Modal from "../Modal/Modal";
-import {appStore} from "../../store/App.store";
+import {AppStore} from "../../store/AppStore";
 import {css} from "../../helpers/css";
 import Button, {ButtonSize} from "../Button/Button";
 import Link from "../Link/Link";
 
 const InitializeAccountModal = observer(() => {
   return <Modal
-    open={appStore.modals.isInitializeAccountModalVisible}
-    onChange={(isOpen) => appStore.modals.isInitializeAccountModalVisible = isOpen}
+    open={AppStore.modals.isInitializeAccountModalVisible}
+    onChange={(isOpen) => AppStore.modals.isInitializeAccountModalVisible = isOpen}
     title={"Initialize zkSync Account"}>
     <div className={css("text-left", "text-center", "text-lg", "mt-6")}>
       <div>

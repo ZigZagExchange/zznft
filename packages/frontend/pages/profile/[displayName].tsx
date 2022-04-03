@@ -12,7 +12,7 @@ import * as zksync from "zksync"
 import {NFT as zkNFT} from "zksync/build/types";
 import {vars} from "../../environment/vars";
 import nftMetadata from "../../mocks/nftMetadata";
-import {appStore} from "../../store/App.store";
+import {AppStore} from "../../store/AppStore";
 import {observer} from "mobx-react";
 
 interface AddressProps {
@@ -35,7 +35,7 @@ const Profile = observer(({nftsOwned, nftsMinted, account}: AddressProps) => {
 
   return <>
     <Head>
-      <title>{appStore.auth.displayName} | zznft</title>
+      <title>{AppStore.auth.displayName} | zznft</title>
     </Head>
     <div className={css("flex", "justify-center")}>
       <div className={css("flex", "flex-col", "items-center")}>
@@ -45,7 +45,7 @@ const Profile = observer(({nftsOwned, nftsMinted, account}: AddressProps) => {
             : <div className={css("bg-neutral-800", "w-full", "h-full")}/>}
         </div>
         <div className={css("text-center", "mt-6", "text-2xl")}>
-          {appStore.auth.displayName}
+          {AppStore.auth.displayName}
         </div>
       </div>
     </div>
@@ -113,9 +113,9 @@ const getNftsFromChain = async (address: string) => {
           metadata: nftMetadata,
           createdAt: new Date().toDateString(),
           updatedAt: new Date().toDateString(),
-          id: "asdlfkj",
-          ownerId: "asldkfj",
-          minterId: "asdlfkj"
+          id: "asdlfsssskj",
+          ownerId: "asldffffkfj",
+          minterId: "asdfasdfasdff"
         }
       })
       nftsMinted = committedMintedNFTs.map(nft => ({
@@ -124,9 +124,9 @@ const getNftsFromChain = async (address: string) => {
         metadata: nftMetadata,
         createdAt: new Date().toDateString(),
         updatedAt: new Date().toDateString(),
-        id: "asdlfkj",
-        ownerId: "asldkfj",
-        minterId: "asdlfkj"
+        id: "asdfffas",
+        ownerId: "werwer",
+        minterId: "asdlfasdfasdfkj"
       }))
 
     } catch (e) {

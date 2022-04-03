@@ -3,7 +3,7 @@ import useWindowFocus from "./useWindowFocus";
 import {useEffect, useState} from "react";
 import {errorToast} from "../components/Toast/toast";
 import {vars} from "../environment/vars";
-import {appStore} from "../store/App.store";
+import {AppStore} from "../store/AppStore";
 
 const useNetworkWatcher = () => {
     // forces user to be connected the correct network
@@ -26,13 +26,13 @@ const useNetworkWatcher = () => {
                 } catch (e) {
                     errorToast("Please reconnect on correct chain")
                     disconnect()
-                    appStore.auth.logout()
+                    AppStore.auth.logout()
                     setIsTargetChainConnected(false)
                 }
             } else {
                 errorToast("Please reconnect on correct chain")
                 disconnect()
-                appStore.auth.logout()
+                AppStore.auth.logout()
                 setIsTargetChainConnected(false)
             }
         }

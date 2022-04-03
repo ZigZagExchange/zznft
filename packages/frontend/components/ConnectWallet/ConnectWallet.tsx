@@ -8,13 +8,11 @@ import {connectorIds, connectorImageSrcMap} from "../../config/connectors";
 import Image from "next/image"
 import {debugToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
-import {appStore} from "../../store/App.store";
+import {AppStore} from "../../store/AppStore";
 import {observer} from "mobx-react";
 import useDisplayName from "../../hooks/useDisplayName";
 import useNetworkWatcher from "../../hooks/useNetworkWatcher";
 import useZkWalletConnector from "../../hooks/useZkWalletMobxSync";
-import InitializeAccountModal from "./InitializeAccountModal";
-import ConnectWalletModal from "./ConnectWalletModal";
 
 const ConnectWallet = observer(() => {
   const [{data: accountData}] = useAccount()
@@ -31,17 +29,9 @@ const ConnectWallet = observer(() => {
   return <>
     {loading ? <div>loading</div> : null}
     {accountData && <WalletConnected/>}
-    {!accountData && <ConnectWalletButton/>}
+    {!accountData && <Button onClick={() => AppStore.modals.isConnectWalletModalVisbile = true}>connect</Button>}
   </>
 })
-
-const ConnectWalletButton = () => {
-  return <>
-    <Button onClick={() => appStore.modals.isConnectWalletModalVisbile = true}>connect</Button>
-    <ConnectWalletModal/>
-    <InitializeAccountModal/>
-  </>
-}
 
 const WalletConnected = () => {
   const [{data}, disconnect] = useAccount({fetchEns: true})
@@ -56,7 +46,7 @@ const WalletConnected = () => {
     <Dropdown.Item>
       <a onClick={() => {
         disconnect()
-        appStore.auth.logout()
+        AppStore.auth.logout()
         debugToast("Disconnected")
       }}
          className={css("hover:cursor-pointer", "hover:underline", "text-lg")}>

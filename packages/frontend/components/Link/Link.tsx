@@ -1,6 +1,6 @@
 import NextLink from "next/link"
 import {css} from "../../helpers/css";
-import {CgExternal} from "react-icons/Cg";
+import {CgExternal} from "react-icons/cg";
 
 
 interface LinkProps {

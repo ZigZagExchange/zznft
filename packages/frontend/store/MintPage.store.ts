@@ -2,15 +2,8 @@ import {computed, makeObservable, observable} from "mobx";
 import {FileRejection} from "react-dropzone";
 import {errorToast} from "../components/Toast/toast";
 import NavigationStore from "./Navigation.store";
-import ZKWalletStore from "./ZKWallet.store";
-import {appStore, AppStore} from "./App.store";
-import {sleep} from "zksync/build/utils";
-import * as zksync from "zksync"
-import {vars} from "../environment/vars";
-import {submitSignedTransaction} from "zksync";
-import {getContentHashFromCID} from "../helpers/strings";
+import {AppStore} from "./AppStore";
 import {Http} from "../services";
-import {Metadata} from "../interfaces";
 
 interface MintFile extends File {
   preview: string
@@ -96,8 +89,8 @@ class MintPageStore extends NavigationStore<MintView>{
     console.log("debug:: contentHash", contentHash)
 
     // Sign tx & send to server
-    const recipient = await appStore.auth.wallet!.address()
-    const tx = await appStore.auth.getSignedMintTransaction({
+    const recipient = await AppStore.auth.wallet!.address()
+    const tx = await AppStore.auth.getSignedMintTransaction({
       recipient,
       feeToken: "ETH",
       contentHash,

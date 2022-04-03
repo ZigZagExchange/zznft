@@ -4,7 +4,7 @@ import {BigNumberish, ethers} from "ethers";
 import {Address, Network, Nonce, TokenLike} from "zksync/build/types";
 import * as zksync from "zksync"
 import {debugToast, errorToast} from "../components/Toast/toast";
-import {appStore} from "./App.store";
+import {AppStore} from "./AppStore";
 const contentHash = require("content-hash")
 
 class ZKWalletStore {
@@ -47,8 +47,8 @@ class ZKWalletStore {
     const accountId = await this.wallet!.getAccountId()
     console.log("debug:: account id", accountId)
     if (accountId === undefined || accountId === null) {
-      appStore.modals.hideAll()
-      appStore.modals.isInitializeAccountModalVisible = true
+      AppStore.modals.hideAll()
+      AppStore.modals.isInitializeAccountModalVisible = true
       debugToast("Account does not exist on zkSync")
       throw new Error("zkSync account does not exist")
     }

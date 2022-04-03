@@ -10,9 +10,9 @@ import ModalsStore from "./Modals.store";
 // eslint-disable-next-line react-hooks/rules-of-hooks
 enableStaticRendering(typeof window === 'undefined')
 
-let store: AppStore | null = null
+let store: _AppStore | null = null
 
-export class AppStore {
+export class _AppStore {
 
   @observable
   auth: AuthStore
@@ -27,18 +27,18 @@ export class AppStore {
   }
 
   @action
-  hydrate = (data: AppStore) => {
+  hydrate = (data: _AppStore) => {
     if (!data) return
   }
 }
 
 
 function initializeStore(initialData = null) {
-  let _store: AppStore
+  let _store: _AppStore
   if (store) {
     _store = store
   } else {
-    _store = new AppStore()
+    _store = new _AppStore()
   }
 
   // If your page has Next.js data fetching methods that use a Mobx store, it will
@@ -54,4 +54,4 @@ function initializeStore(initialData = null) {
   return _store
 }
 
-export const appStore = initializeStore()
+export const AppStore = initializeStore()

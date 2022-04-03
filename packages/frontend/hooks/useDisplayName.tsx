@@ -1,12 +1,12 @@
 import {abbreviate, isValidEthereumAddress} from "../helpers/strings";
-import {appStore} from "../store/App.store";
+import {AppStore} from "../store/AppStore";
 
 const useDisplayName = (address?: string) => {
   // const [{ data, error, loading }] = useEnsLookup({address})
   let displayName
   if (address) {
-    if (appStore.auth.account) {
-      displayName = appStore.auth.account.displayName
+    if (AppStore.auth.account) {
+      displayName = AppStore.auth.account.displayName
     } else {
       displayName = abbreviate(address)
     }

@@ -11,7 +11,9 @@ import {isDev} from "../../environment";
 import {siteTitle} from "../../constants";
 import {useNetwork} from "wagmi";
 import { motion } from "framer-motion";
-import {appStore} from "../../store/App.store";
+import {AppStore} from "../../store/AppStore";
+import ConnectWalletModal from "../ConnectWallet/ConnectWalletModal";
+import InitializeAccountModal from "../ConnectWallet/InitializeAccountModal";
 
 interface LayoutProps {
   children: any;
@@ -39,7 +41,8 @@ const Layout = ({children}: LayoutProps) => {
         {children}
       </div>
     </main>
-
+    <ConnectWalletModal/>
+    <InitializeAccountModal/>
   </div>
 }
 
@@ -59,7 +62,7 @@ const Header = observer(() => {
       </div>
       <div className={css("flex")}>
         <div className={css("mr-4")}>
-          {appStore.auth.isAuthed && <Button onClick={() => router.push("/mint")}>+</Button>}
+          {AppStore.auth.isAuthed && <Button onClick={() => router.push("/mint")}>+</Button>}
         </div>
         <ConnectWallet/>
       </div>

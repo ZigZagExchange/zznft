@@ -5,7 +5,7 @@ import {connectorIds, connectorImageSrcMap} from "../../config/connectors";
 import Modal from "../Modal/Modal";
 import React from "react";
 import {useConnect} from "wagmi";
-import {appStore} from "../../store/App.store";
+import {AppStore} from "../../store/AppStore";
 import {observer} from "mobx-react";
 
 interface ConnectWalletModalProps {
@@ -15,8 +15,8 @@ interface ConnectWalletModalProps {
 const ConnectWalletModal = observer(({}: ConnectWalletModalProps) => {
   const [{data}, connect] = useConnect()
   return <Modal
-    open={appStore.modals.isConnectWalletModalVisbile}
-    onChange={(isOpen) => appStore.modals.isConnectWalletModalVisbile = isOpen}
+    open={AppStore.modals.isConnectWalletModalVisbile}
+    onChange={(isOpen) => AppStore.modals.isConnectWalletModalVisbile = isOpen}
     title={"Connect a Wallet"}
   >
     <div className={css("flex", "flex-col")}>
@@ -26,7 +26,9 @@ const ConnectWalletModal = observer(({}: ConnectWalletModalProps) => {
             block
             type={ButtonType.Black}
             size={ButtonSize.lg}
-            onClick={() => connect(connector)}
+            onClick={() => {
+              connect(connector).then(() => AppStore.modals.isConnectWalletModalVisbile = false)
+            }}
             className={{
               "from-metamask-150": connector.name === "MetaMask",
               "via-metamask-100": connector.name === "MetaMask",
