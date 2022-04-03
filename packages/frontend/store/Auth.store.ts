@@ -3,7 +3,7 @@ import {Http} from "../services";
 import {Account} from "../interfaces";
 import ZKWalletStore from "./ZKWallet.store";
 import {ethers} from "ethers";
-import {abbreviate, isValidEthereumAddress} from "../helpers/strings";
+import {abbreviate, isValidEthereumAddress, jsonify} from "../helpers/strings";
 import {errorToast} from "../components/Toast/toast";
 
 class AuthStore extends ZKWalletStore {
@@ -18,10 +18,8 @@ class AuthStore extends ZKWalletStore {
 
   private async getAccount() {
     const address = await this.wallet?.address()
-    return Http.get("/account", {params: {address}}).then(res => {
-      const accounts: Account[] = res.data
-      return accounts.find(account => account.address === address)
-    })
+    const {data: account} = await Http.get(`/account/${address}`)
+    return account
   }
 
   private async signUp() {
@@ -46,6 +44,7 @@ class AuthStore extends ZKWalletStore {
       await super.connect(signer)
       try {
         this.account = await this.getAccount()
+        console.log("debug:: account", jsonify(this.account))
       } catch (e) {
         console.error(e)
         console.error("Could not get account")

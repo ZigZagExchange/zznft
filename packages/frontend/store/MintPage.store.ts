@@ -4,6 +4,7 @@ import {errorToast} from "../components/Toast/toast";
 import NavigationStore from "./Navigation.store";
 import {AppStore} from "./AppStore";
 import {Http} from "../services";
+import App from "next/app";
 
 interface MintFile extends File {
   preview: string
@@ -79,10 +80,13 @@ class MintPageStore extends NavigationStore<MintView>{
   async submit() {
     // Build metadata
     const formData = new FormData()
+    const message = "uploadMetadata"
+    const signature = await AppStore.auth.wallet!.ethSigner.signMessage(message)
     formData.append("asset", this.file!)
     formData.append("name", this.title)
     formData.append("description", this.description)
     formData.append("attributes", "[]")
+    formData.append("signature", signature)
     const {data} = await Http.post("/nft/metadata", formData)
     const {contentHash} = data
 
