@@ -4,7 +4,7 @@ import {errorToast} from "../components/Toast/toast";
 import NavigationStore from "./Navigation.store";
 import {AppStore} from "./AppStore";
 import {Http} from "../services";
-import App from "next/app";
+import {Transaction} from "zksync";
 
 interface MintFile extends File {
   preview: string
@@ -13,7 +13,8 @@ interface MintFile extends File {
 export enum MintView {
   Select = "select",
   Edit = "edit",
-  Preview = "preview"
+  Submit = "preview",
+  Receipt = "receipt"
 }
 
 class MintPageStore extends NavigationStore<MintView>{
@@ -26,6 +27,15 @@ class MintPageStore extends NavigationStore<MintView>{
 
   @observable
   description = ""
+
+  @observable
+  receipt?: Transaction
+
+  @observable
+  isMetadataUploadLoading = false
+
+  @observable
+  isNftUploadLoading = false
 
   acceptedFileTypes = [
     {mime: "image/jpeg", extension: ".jpeg"},
@@ -58,6 +68,7 @@ class MintPageStore extends NavigationStore<MintView>{
     })
   }
 
+  // TODO: any additional validator here?
   fileValidator(file: File) {
     console.log("debug:: file", file)
     console.log("debug:: type", file.type)
@@ -78,29 +89,59 @@ class MintPageStore extends NavigationStore<MintView>{
   }
 
   async submit() {
-    // Build metadata
-    const formData = new FormData()
-    const message = "uploadMetadata"
-    const signature = await AppStore.auth.wallet!.ethSigner.signMessage(message)
-    formData.append("asset", this.file!)
-    formData.append("name", this.title)
-    formData.append("description", this.description)
-    formData.append("attributes", "[]")
-    formData.append("signature", signature)
-    const metadataHeaders = await AppStore.auth.getApiSignatureHeaders(formData)
-    const {data} = await Http.post("/nft/metadata", formData, {headers: metadataHeaders})
-    const {contentHash} = data
+    try {
+      // Build metadata
+      const formData = new FormData()
+      formData.append("asset", this.file!)
+      formData.append("name", this.title)
+      formData.append("description", this.description)
+      formData.append("attributes", "[]")
 
-    // Sign tx & send to server
-    const recipient = await AppStore.auth.wallet!.address()
-    const tx = await AppStore.auth.getSignedMintTransaction({
-      recipient,
-      feeToken: "ETH",
-      contentHash,
-    })
-    const mintHeaders = await AppStore.auth.getApiSignatureHeaders(tx)
-    const res = await Http.post("/nft", {tx}, {headers: mintHeaders})
-    console.log("tx sent to network", res)
+      this.isMetadataUploadLoading = true
+
+      const metadataHeaders = await AppStore.auth.getApiSignatureHeaders({
+        name: formData.get("name"),
+        description: formData.get("description"),
+        attributes: formData.get("attributes")
+      })
+      const {data} = await Http.post("/nft/metadata", formData, {headers: metadataHeaders})
+      const {contentHash} = data
+
+      this.isMetadataUploadLoading = false
+
+      this.isNftUploadLoading = true
+      const recipient = await AppStore.auth.wallet!.address()
+      const tx = await AppStore.auth.getSignedMintTransaction({
+        recipient,
+        feeToken: "ETH",
+        contentHash,
+      })
+      const mintHeaders = await AppStore.auth.getApiSignatureHeaders(tx)
+      const { data: { receipt } } = await Http.post("/nft", {tx}, {headers: mintHeaders})
+      this.receipt = receipt
+
+      this.isNftUploadLoading = false
+
+      this.currentView = MintView.Receipt
+    } finally {
+      this.isMetadataUploadLoading = false
+      this.isNftUploadLoading = false
+    }
+  }
+
+  @computed
+  get zkSyncTxLink() {
+    const hash = this.receipt?.txHash.split("sync-tx:")[1]
+    if (!hash) {
+      return hash
+    } else {
+      return `${process.env.NEXT_PUBLIC_BASE_ZK_EXPLORER_URL}/transactions/${hash}`
+    }
+  }
+
+  @computed
+  get isLoading() {
+    return this.isNftUploadLoading || this.isMetadataUploadLoading
   }
 }
 

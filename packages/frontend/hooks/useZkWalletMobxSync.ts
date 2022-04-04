@@ -13,7 +13,7 @@ const useZkWalletMobxSync = () => {
             try {
                 await AppStore.auth.connect(_signer)
             } catch (e) {
-                console.error(e)
+                console.error("disconnecting wallets:", e)
                 disconnect()
                 AppStore.auth.logout()
             }
@@ -24,7 +24,6 @@ const useZkWalletMobxSync = () => {
                 if (signer && networkData.chain?.id === vars.TARGET_CHAIN_ID) {
                     const zkAddress = AppStore.auth.wallet?.address()
                     const accountAddress = accountData?.address
-                    console.log("checking zkAddress & accountAddress", zkAddress, accountAddress)
                     if (zkAddress !== accountAddress && !AppStore.auth.isWalletConnecting) {
                         await getZkWallet(signer)
                     }

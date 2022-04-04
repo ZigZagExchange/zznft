@@ -1,11 +1,11 @@
 import {observer} from "mobx-react";
-import MintPageStore, {MintView} from "../../store/MintPage.store";
+import MintPageStore from "../../store/MintPage.store";
 import {css} from "../../helpers/css";
 import MediaInput from "./MediaInput";
 import Button, {ButtonType} from "../Button/Button";
 import {errorToast} from "../Toast/toast";
 
-const MintPreview = observer(({store}: {store: MintPageStore}) => {
+const MintSubmit = observer(({store}: {store: MintPageStore}) => {
   return <div className={css("grid", "grid-cols-2", "gap-16")}>
     <div>
       <MediaInput store={store}/>
@@ -22,21 +22,18 @@ const MintPreview = observer(({store}: {store: MintPageStore}) => {
         <div className={css("mt-5")}>Double check the details below as you will not be able to alter them after minting.</div>
       </div>
       <div className={css("flex", "justify-around")}>
-        <Button onClick={() => store.goBack()} type={ButtonType.Black}>back</Button>
-        <Button onClick={() => {
-          store.submit()
-            .then(res => {
-              console.log(res)
-              store.currentView = MintView.Select
-            })
-            .catch(e => {
-              console.error(e)
-              errorToast("Could not mint NFT")
-            })
-        }}>mint</Button>
+        <Button disabled={store.isLoading} onClick={() => store.goBack()} type={ButtonType.Black}>back</Button>
+        <Button disabled={store.isLoading}
+                onClick={() => {
+                  store.submit().catch(e => {
+                  console.error(e)
+                  errorToast("Could not mint NFT")
+                })}}>
+          mint
+        </Button>
       </div>
     </div>
   </div>
 })
 
-export default MintPreview
+export default MintSubmit

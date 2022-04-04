@@ -19,7 +19,7 @@ const MintEdit = observer(({store}: { store: MintPageStore }) => {
       </div>
       <div className={css("flex", "justify-between", "mt-8")}>
         <Button type={ButtonType.Black} onClick={() => store.goBack()}>back</Button>
-        <Button onClick={() => store.currentView = MintView.Preview}>continue</Button>
+        <Button onClick={() => store.currentView = MintView.Submit}>continue</Button>
       </div>
     </div>
     <div className={css("flex", "flex-col", "gap-5")}>

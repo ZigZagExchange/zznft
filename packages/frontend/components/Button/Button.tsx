@@ -13,17 +13,17 @@ export enum ButtonSize {
   lg = 'lg'
 }
 
-const buttonHoverStyle = ["hover:bg-gradient-to-r", "from-zz-50", "via-zz-100", "to-zz-150"]
+const buttonHoverStyle = css("hover:bg-gradient-to-r", "from-zz-50", "via-zz-100", "to-zz-150", "disabled:cursor-not-allowed")
 
 const buttonVariantStyles = {
-  [ButtonType.Primary]: ["bg-neutral-800", ...buttonHoverStyle],
-  [ButtonType.Black]: ["bg-black", ...buttonHoverStyle],
-  [ButtonType.Error]: ["bg-red-200"]
+  [ButtonType.Primary]: css("bg-neutral-800", "disabled:bg-neutral-800", buttonHoverStyle),
+  [ButtonType.Black]: css("bg-black", "disabled:bg-black", buttonHoverStyle),
+  [ButtonType.Error]: css("bg-red-200", "disabled:bg-red-200")
 }
 
 const buttonSizeStyles = {
-  [ButtonSize.sm]: ["px-3", "py-1", "font-sm"],
-  [ButtonSize.lg]: ["p-4", "font-md"]
+  [ButtonSize.sm]: css("px-3", "py-1", "font-sm"),
+  [ButtonSize.lg]: css("p-4", "font-md")
 }
 
 interface ButtonProps {
@@ -31,7 +31,8 @@ interface ButtonProps {
   type?: ButtonType,
   size?: ButtonSize,
   block?: boolean,
-  className?: Argument
+  className?: Argument;
+  disabled?: boolean
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -40,9 +41,11 @@ const Button: React.FC<ButtonProps> = ({
                                          type = ButtonType.Primary,
                                          size = ButtonSize.sm,
                                          block,
-                                         className
+                                         className,
+                                         disabled
                                        }) => {
   return <button
+    disabled={disabled}
     type={"button"}
     onClick={onClick && onClick}
     className={css(buttonVariantStyles[type], buttonSizeStyles[size], "font-mono", {"w-full": block}, className)}
@@ -50,6 +53,8 @@ const Button: React.FC<ButtonProps> = ({
     {children}
   </button>
 }
+
+
 
 interface SubmitProps extends Pick<ButtonProps, "onClick" | "block"> {
   label?: string;

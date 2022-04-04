@@ -1,11 +1,8 @@
 import {useAccount, useConnect, useNetwork} from "wagmi";
-import React, {useEffect, useState} from "react";
-import Button, {ButtonSize, ButtonType} from "../Button/Button";
+import React, {useEffect} from "react";
+import Button from "../Button/Button";
 import Link from "next/link";
 import {css} from "../../helpers/css";
-import Modal from "../Modal/Modal";
-import {connectorIds, connectorImageSrcMap} from "../../config/connectors";
-import Image from "next/image"
 import {debugToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
 import {AppStore} from "../../store/AppStore";
@@ -13,6 +10,7 @@ import {observer} from "mobx-react";
 import useDisplayName from "../../hooks/useDisplayName";
 import useNetworkWatcher from "../../hooks/useNetworkWatcher";
 import useZkWalletConnector from "../../hooks/useZkWalletMobxSync";
+import DSLLink, {LinkSize, LinkType} from "../Link/Link"
 
 const ConnectWallet = observer(() => {
   const [{data: accountData}] = useAccount()
@@ -39,9 +37,9 @@ const WalletConnected = () => {
   const [{data: networkData}] = useNetwork()
   return <Dropdown trigger={<Button>{displayName}</Button>}>
     <Dropdown.Item>
-      <Link href={`/profile/${data!.address}`}>
-        <a className={css("hover:underline", "text-lg")}>profile</a>
-      </Link>
+      <DSLLink href={`/profile/${data!.address}`} type={LinkType.Secondary} size={LinkSize.lg}>
+        profile
+      </DSLLink>
     </Dropdown.Item>
     <Dropdown.Item>
       <a onClick={() => {

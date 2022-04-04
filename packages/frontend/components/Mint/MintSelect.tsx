@@ -8,7 +8,7 @@ const MintSelect = observer(({store}: { store: MintPageStore }) => {
   return <div>
     <div className={css("relative")}>
       <MediaInput store={store} isInput/>
-      {store.currentView === MintView.Select && store.hasFile && <div className={css("absolute")} style={{top: 0, right: 0}}>
+      {store.hasFile && <div className={css("absolute")} style={{top: 0, right: 0}}>
         <Button onClick={() => store.file = null}>x</Button>
       </div>}
     </div>

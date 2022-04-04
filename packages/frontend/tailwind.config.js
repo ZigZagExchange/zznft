@@ -33,5 +33,10 @@ module.exports = {
       }
     },
   },
+  variants: {
+    extend: {
+      backgroundColor: ['responsive', 'disabled']
+    }
+  },
   plugins: [],
 }

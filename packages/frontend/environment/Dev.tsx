@@ -22,7 +22,7 @@ export const DevToggle: React.FC = ({children}) => {
         </Button>
         <div className={css("text-xs", "text-center", "text-pink-400", "mt-1")}>dev</div>
       </div>
-      {show && <div className={css("ml-5")}>{children}</div>}
+      {show && <div className={css("ml-5")} style={{overflowWrap: "anywhere"}}>{children}</div>}
     </div>
   </Dev>
 }

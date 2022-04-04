@@ -3,8 +3,7 @@ import {Http} from "../services";
 import {Account} from "../interfaces";
 import ZKWalletStore from "./ZKWallet.store";
 import {ethers} from "ethers";
-import {abbreviate, isValidEthereumAddress, jsonify} from "../helpers/strings";
-import {errorToast} from "../components/Toast/toast";
+import {abbreviate, isValidEthereumAddress} from "../helpers/strings";
 
 class AuthStore extends ZKWalletStore {
 
@@ -28,33 +27,22 @@ class AuthStore extends ZKWalletStore {
       displayName: address,
       address
     }
-    const headers = await this.getApiSignatureHeaders(body)
-    return await Http.post("/account", body, {headers}).then(res => {
-      this.account = res.data
-    }).catch(e => {
-      console.error(e)
-      errorToast("Could not sign up with zznft")
-    })
+    try {
+      const {data} = await Http.post("/account", body)
+      this.account = data
+    } catch (e) {
+      console.error("Could not sign up with zznft")
+      throw e
+    }
   }
 
   async connect(signer: ethers.Signer) {
     try {
       await super.connect(signer)
-      try {
-        this.account = await this.getAccount()
-        console.log("debug:: account", jsonify(this.account))
-      } catch (e) {
-        console.error(e)
-        console.error("Could not get account")
-        throw e
-      }
+      this.account = await this.getAccount()
+
       if (!this.account) {
-        try {
-          await this.signUp()
-        } catch (e) {
-          errorToast("Could not sign up")
-          throw e
-        }
+        await this.signUp()
       }
     } catch (e) {
       console.error(e)
@@ -65,6 +53,7 @@ class AuthStore extends ZKWalletStore {
   logout() {
     super.disconnect()
     this.account = undefined
+    this.wallet = null
   }
 
   get isAuthed() {
@@ -85,7 +74,7 @@ class AuthStore extends ZKWalletStore {
     }
   }
 
-  async getApiSignatureHeaders(body: object) {
+  async getApiSignatureHeaders(body: object | FormData) {
     const now = new Date()
     const seconds = now.getTime() / 1000
     const message = JSON.stringify(body) + "_" + seconds

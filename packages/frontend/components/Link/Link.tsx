@@ -1,46 +1,61 @@
 import NextLink from "next/link"
 import {css} from "../../helpers/css";
 import {CgExternal} from "react-icons/cg";
-
+import React from "react";
 
 interface LinkProps {
   isExternal?: boolean;
   href: string;
   children: string;
+  type?: LinkType;
+  size?: LinkSize
 }
 
-const Link: React.FC<LinkProps> = ({isExternal, href, children}: LinkProps) => {
+const Link: React.FC<LinkProps> = ({isExternal, href, children, type = LinkType.Primary, size = LinkSize.sm}: LinkProps) => {
+  const styles = css(linkTypeStyles[type], linkSizeStyles[size])
+
   return <>
-    {isExternal ? <StyledLink href={href} isExternal={isExternal}>
-        <span className={css("flex", "items-center")}>
+    {isExternal ? <a
+      href={href}
+      className={css(styles, "flex", "items-center")}
+      target={isExternal ? "_blank" : "_self"}
+      rel={"noreferrer"}
+    >
+      {children}
+      <span className={css("ml-2")}>
+        <CgExternal/>
+      </span>
+    </a>
+    : <NextLink href={href}>
+        <a className={css(styles)}>
           {children}
-          <span className={css("ml-2")}>
-            <CgExternal/>
-          </span>
-        </span>
-      </StyledLink>
-      : <NextLink href={href}>
-        <StyledLink isExternal={isExternal}>
-          {children}
-        </StyledLink>
+        </a>
       </NextLink>}
   </>
 }
 
-interface StyledLinkProps {
-  href?: string;
-  children: any;
-  isExternal?: boolean
+export enum LinkType {
+  Primary = "primary",
+  Secondary = "secondary",
+  Grey = "grey"
 }
 
-const StyledLink: React.FC<StyledLinkProps> = ({href, isExternal, children}) => {
-  return <a
-    href={href}
-    className={css("hover:underline", "hover:cursor-pointer", "hover:text-zz-150")}
-    target={isExternal ? "_blank" : "_self"}
-    rel={"noreferrer"}>
-    {children}
-  </a>
+export enum LinkSize {
+  sm = "sm",
+  lg = "lg"
+}
+
+const baseLinkStyles = css("hover:underline", "hover:cursor-pointer")
+
+const linkTypeStyles = {
+  [LinkType.Primary]: css("text-white", "hover:text-zz-150", baseLinkStyles),
+  [LinkType.Secondary]: css("text-white", baseLinkStyles),
+  [LinkType.Grey]: css("text-neutral-400", "hover:text-zz-150", baseLinkStyles)
+}
+
+const linkSizeStyles = {
+  [LinkSize.sm]: css("text-md"),
+  [LinkSize.lg]: css("text-lg")
 }
 
 
