@@ -45,7 +45,6 @@ class ZKWalletStore {
 
   async unlockAccount() {
     const accountId = await this.wallet!.getAccountId()
-    console.log("debug:: account id", accountId)
     if (accountId === undefined || accountId === null) {
       AppStore.modals.hideAll()
       AppStore.modals.isInitializeAccountModalVisible = true

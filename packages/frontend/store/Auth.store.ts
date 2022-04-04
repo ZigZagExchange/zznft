@@ -24,15 +24,13 @@ class AuthStore extends ZKWalletStore {
 
   private async signUp() {
     const address = this.wallet?.address()
-    const message = `${address}:account`
-    const signature = await this.wallet?.ethSigner.signMessage(message)
-    return await Http.post("/account", {
+    const body = {
       displayName: address,
-      address,
-      signature
-    }).then(res => {
-      const {data} = res
-      this.account = data
+      address
+    }
+    const headers = await this.getApiSignatureHeaders(body)
+    return await Http.post("/account", body, {headers}).then(res => {
+      this.account = res.data
     }).catch(e => {
       console.error(e)
       errorToast("Could not sign up with zznft")
@@ -84,6 +82,17 @@ class AuthStore extends ZKWalletStore {
       }
     } else {
       return ""
+    }
+  }
+
+  async getApiSignatureHeaders(body: object) {
+    const now = new Date()
+    const seconds = now.getTime() / 1000
+    const message = JSON.stringify(body) + "_" + seconds
+    const signature = await this.wallet?.ethSigner.signMessage(message)
+    return {
+      "X-Timestamp": seconds!,
+      "X-Signature": signature!
     }
   }
 

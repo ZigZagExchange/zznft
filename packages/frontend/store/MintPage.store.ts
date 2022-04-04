@@ -87,10 +87,9 @@ class MintPageStore extends NavigationStore<MintView>{
     formData.append("description", this.description)
     formData.append("attributes", "[]")
     formData.append("signature", signature)
-    const {data} = await Http.post("/nft/metadata", formData)
+    const metadataHeaders = await AppStore.auth.getApiSignatureHeaders(formData)
+    const {data} = await Http.post("/nft/metadata", formData, {headers: metadataHeaders})
     const {contentHash} = data
-
-    console.log("debug:: contentHash", contentHash)
 
     // Sign tx & send to server
     const recipient = await AppStore.auth.wallet!.address()
@@ -99,27 +98,9 @@ class MintPageStore extends NavigationStore<MintView>{
       feeToken: "ETH",
       contentHash,
     })
-    const res = await Http.post("/nft", {tx})
+    const mintHeaders = await AppStore.auth.getApiSignatureHeaders(tx)
+    const res = await Http.post("/nft", {tx}, {headers: mintHeaders})
     console.log("tx sent to network", res)
-
-
-
-    // // fetch({method: "POST", url: "/metadata"}).then(res => postNFTtoAPI)
-    // const cid = "QmWxW6vwDZkgMJzTFZqTeTt5ggLJT4BXhTLXQpzMDJ7Zrk"
-    // const contentHash = getContentHashFromCID(cid)
-    // // const recipient = await this.appStore.zk.wallet!.address()
-    //
-    // const recipient = await appStore.auth.wallet!.address()
-    // const tx = await appStore.auth.getSignedMintTransaction({
-    //   recipient,
-    //   feeToken: "ETH",
-    //   contentHash,
-    // })
-    //
-    // const newProvider = await zksync.getDefaultProvider("rinkeby")
-    // const submittedTx = await submitSignedTransaction(tx!, newProvider, false)
-    // console.log("submitted TX", submittedTx)
-    // return submittedTx
   }
 }
 

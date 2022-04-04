@@ -9,7 +9,7 @@ const FormDemo = () => {
   const [value, setValue] = useState("")
   return <Demo title={"Form"}>
     <Form onSubmit={async (data) => {console.log("submit", data)}}>
-      <div className={css("flex", "gap-7", "items-end")}>
+      <div className={css("flex", "items-end", "justify-between")}>
         <TextInput value={value} onChange={setValue} name={"test"} label={"Text Input"}/>
         <Button onClick={() => setValue("testyyy")} type={ButtonType.Black}>Change controlled</Button>
       </div>
