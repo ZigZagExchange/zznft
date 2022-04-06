@@ -5,7 +5,7 @@ import NavigationStore from "./Navigation.store";
 import {AppStore} from "./AppStore";
 import {Http} from "../services";
 import {Transaction} from "zksync";
-import {jsonify} from "../helpers/strings";
+import {FILE_UPLOAD_KEY} from "../constants";
 
 interface MintFile extends File {
   preview: string
@@ -91,8 +91,6 @@ class MintPageStore extends NavigationStore<MintView>{
 
   async submit() {
     try {
-
-
       this.isMetadataUploadLoading = true
       const {contentHash} = await this.uploadMetadata()
       this.isMetadataUploadLoading = false
@@ -110,19 +108,10 @@ class MintPageStore extends NavigationStore<MintView>{
 
   async uploadMetadata() {
     const formData = new FormData()
-    formData.append("asset", this.file!)
-    formData.set("name", this.title)
-    formData.set("description", this.description)
-    formData.set("attributes", "[]")
-
-    // Display the values
-    //@ts-ignore
-    for (var value of formData.values()) {
-      console.log(value);
-    }
-
-    console.log("form data before sending", formData)
-
+    formData.append("name", this.title)
+    formData.append("description", this.description)
+    formData.append("attributes", "[]")
+    formData.append(FILE_UPLOAD_KEY, this.file!, this.file!.name)
     const {data} = await Http.post("/nft/metadata", formData)
     return data
   }

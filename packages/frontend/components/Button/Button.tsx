@@ -1,6 +1,7 @@
 import React from "react";
 import classNames, {Argument} from "classnames";
 import {css} from "../../helpers/css";
+import {useFormState} from "react-final-form";
 
 export enum ButtonType {
   Primary = 'primary',
@@ -33,7 +34,8 @@ interface ButtonProps {
   size?: ButtonSize,
   block?: boolean,
   className?: Argument;
-  disabled?: boolean
+  disabled?: boolean;
+  isSubmit?: boolean
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -43,11 +45,12 @@ const Button: React.FC<ButtonProps> = ({
                                          size = ButtonSize.sm,
                                          block,
                                          className,
-                                         disabled
+                                         disabled,
+                                         isSubmit
                                        }) => {
   return <button
     disabled={disabled}
-    type={"button"}
+    type={isSubmit ? "submit" : "button"}
     onClick={onClick && onClick}
     className={css(buttonVariantStyles[type], buttonSizeStyles[size], {"w-full": block, [buttonHoverStyle]: !disabled}, className)}
   >
@@ -57,16 +60,13 @@ const Button: React.FC<ButtonProps> = ({
 
 
 
-interface SubmitProps extends Pick<ButtonProps, "onClick" | "block"> {
+interface SubmitProps extends ButtonProps{
   label?: string;
 }
 
-export const Submit: React.FC<SubmitProps> = ({onClick, label}) => {
-  return <button onClick={onClick && onClick}
-                 className={css(buttonVariantStyles[ButtonType.Primary], buttonSizeStyles[ButtonSize.sm])}
-                 type={"submit"}>
-    {label ? label : "Submit"}
-  </button>
+export const Submit: React.FC<SubmitProps> = ({label, disabled, ...rest}) => {
+  const {submitting} = useFormState()
+  return <Button isSubmit disabled={submitting || disabled} {...rest}>{label ? label : "Submit"}</Button>
 }
 
 export default Button
