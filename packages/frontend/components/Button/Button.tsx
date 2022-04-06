@@ -13,12 +13,13 @@ export enum ButtonSize {
   lg = 'lg'
 }
 
-const buttonHoverStyle = css("hover:bg-gradient-to-r", "from-zz-50", "via-zz-100", "to-zz-150", "disabled:cursor-not-allowed")
+const baseButtonStyles = css("disabled:cursor-not-allowed", "font-mono")
+const buttonHoverStyle = css("hover:bg-gradient-to-r", "from-zz-50", "via-zz-100", "to-zz-150", "disabled:hover:bg-neutral-100")
 
 const buttonVariantStyles = {
-  [ButtonType.Primary]: css("bg-neutral-800", "disabled:bg-neutral-800", buttonHoverStyle),
-  [ButtonType.Black]: css("bg-black", "disabled:bg-black", buttonHoverStyle),
-  [ButtonType.Error]: css("bg-red-200", "disabled:bg-red-200")
+  [ButtonType.Primary]: css("bg-neutral-800", "disabled:bg-neutral-800", baseButtonStyles),
+  [ButtonType.Black]: css("bg-black", "disabled:bg-black", baseButtonStyles),
+  [ButtonType.Error]: css("bg-red-200", "disabled:bg-red-200", baseButtonStyles)
 }
 
 const buttonSizeStyles = {
@@ -48,7 +49,7 @@ const Button: React.FC<ButtonProps> = ({
     disabled={disabled}
     type={"button"}
     onClick={onClick && onClick}
-    className={css(buttonVariantStyles[type], buttonSizeStyles[size], "font-mono", {"w-full": block}, className)}
+    className={css(buttonVariantStyles[type], buttonSizeStyles[size], {"w-full": block, [buttonHoverStyle]: !disabled}, className)}
   >
     {children}
   </button>

@@ -5,6 +5,7 @@ import NavigationStore from "./Navigation.store";
 import {AppStore} from "./AppStore";
 import {Http} from "../services";
 import {Transaction} from "zksync";
+import {jsonify} from "../helpers/strings";
 
 interface MintFile extends File {
   preview: string
@@ -90,36 +91,14 @@ class MintPageStore extends NavigationStore<MintView>{
 
   async submit() {
     try {
-      // Build metadata
-      const formData = new FormData()
-      formData.append("asset", this.file!)
-      formData.append("name", this.title)
-      formData.append("description", this.description)
-      formData.append("attributes", "[]")
+
 
       this.isMetadataUploadLoading = true
-
-      const metadataHeaders = await AppStore.auth.getApiSignatureHeaders({
-        name: formData.get("name"),
-        description: formData.get("description"),
-        attributes: formData.get("attributes")
-      })
-      const {data} = await Http.post("/nft/metadata", formData, {headers: metadataHeaders})
-      const {contentHash} = data
-
+      const {contentHash} = await this.uploadMetadata()
       this.isMetadataUploadLoading = false
 
       this.isNftUploadLoading = true
-      const recipient = await AppStore.auth.wallet!.address()
-      const tx = await AppStore.auth.getSignedMintTransaction({
-        recipient,
-        feeToken: "ETH",
-        contentHash,
-      })
-      const mintHeaders = await AppStore.auth.getApiSignatureHeaders(tx)
-      const { data: { receipt } } = await Http.post("/nft", {tx}, {headers: mintHeaders})
-      this.receipt = receipt
-
+      this.receipt = await this.uploadNft(contentHash)
       this.isNftUploadLoading = false
 
       this.currentView = MintView.Receipt
@@ -127,6 +106,37 @@ class MintPageStore extends NavigationStore<MintView>{
       this.isMetadataUploadLoading = false
       this.isNftUploadLoading = false
     }
+  }
+
+  async uploadMetadata() {
+    const formData = new FormData()
+    formData.append("asset", this.file!)
+    formData.set("name", this.title)
+    formData.set("description", this.description)
+    formData.set("attributes", "[]")
+
+    // Display the values
+    //@ts-ignore
+    for (var value of formData.values()) {
+      console.log(value);
+    }
+
+    console.log("form data before sending", formData)
+
+    const {data} = await Http.post("/nft/metadata", formData)
+    return data
+  }
+
+  async uploadNft(contentHash: string) {
+    const recipient = await AppStore.auth.wallet!.address()
+    const tx = await AppStore.auth.getSignedMintTransaction({
+      recipient,
+      feeToken: "ETH",
+      contentHash,
+    })
+    const mintHeaders = await AppStore.auth.getApiSignatureHeaders(tx)
+    const { data: { receipt } } = await Http.post("/nft", {tx}, {headers: mintHeaders})
+    return receipt
   }
 
   @computed
