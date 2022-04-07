@@ -1,15 +1,16 @@
 
 export interface NFT {
-  id: string;
+  id: number;
   address: string;
   createdAt: string;
   updatedAt: string;
-
-  // @TODO: not in sync with api right now
-  token_id: string;
-  metadata: Metadata;
-  ownerId: string;
-  minterId: string;
+  tokenId: string;
+  metadata: string;
+  ownerAddress: string;
+  creatorAddress: string;
+  zkContentHash: string;
+  // TODO: I don't think we need this
+  assetCid: string;
 }
 
 export interface Account {

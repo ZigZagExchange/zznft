@@ -1,6 +1,8 @@
 import {css} from "../../helpers/css";
 import {useRouter} from "next/router";
 import {Metadata, NFT} from "../../interfaces";
+import {DevToggle} from "../../environment/Dev";
+import {jsonify} from "../../helpers/strings";
 
 interface NFTPreviewProps {
   nft: NFT;
@@ -9,20 +11,18 @@ interface NFTPreviewProps {
 
 const NFTPreview = ({nft, showDetails = false}: NFTPreviewProps) => {
   const router = useRouter()
-  const metadata = nft.metadata as Metadata
-
+  const metadata = JSON.parse(nft.metadata) as Metadata
   return <div>
     <div
-      style={{minWidth: "300px", minHeight: "300px"}}
-      onClick={() => router.push(`/nft/${nft.token_id}`)}
-      className={css("break-all", "bg-neutral-800", "p-3", "text-sm", "hover:cursor-pointer", "hover:bg-neutral-900", "w-full", "h-full", "flex", "items-center", "justify-center")}>
+      style={{height: "300px", width: "300px"}}
+      onClick={() => router.push(`/nft/${nft.tokenId}`)}
+      className={css("break-all", "bg-neutral-800", "p-3", "text-sm", "hover:cursor-pointer", "hover:bg-neutral-900", "w-full", "h-full", "flex", "items-center", "justify-center", "overflow-hidden")}>
       <img src={metadata.image}/>
     </div>
     {showDetails && <div className={css("flex", "justify-between", "mt-3")}>
       <div>{metadata.name}</div>
-      <div>{nft.token_id}</div>
+      <div>{nft.tokenId}</div>
     </div>}
-    {/*<DevToggle>{jsonfiy(nft)}</DevToggle>*/}
   </div>
 }
 

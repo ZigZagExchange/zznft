@@ -14,6 +14,7 @@ import {vars} from "../../environment/vars";
 import nftMetadata from "../../mocks/nftMetadata";
 import {AppStore} from "../../store/AppStore";
 import {observer} from "mobx-react";
+import {Http} from "../../services";
 
 interface AddressProps {
   nftsOwned: NFT[]
@@ -65,81 +66,24 @@ const Profile = observer(({nftsOwned, nftsMinted, account}: AddressProps) => {
       </div>
     </div>
     <div className={css("mt-8")}>
-      <div className={css("flex", "gap-9", "flex-wrap", "justify-center")}>
-        {tab === Tabs.Collection && nftsOwned.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
-        {tab === Tabs.Creation && nftsMinted.map(nft => <NFTPreview key={nft.id} nft={nft}/>)}
+      <div className={css("flex", "gap-10", "flex-wrap", "justify-center")}>
+        {tab === Tabs.Collection && nftsOwned.map(nft => <NFTPreview showDetails key={nft.id} nft={nft}/>)}
+        {tab === Tabs.Creation && nftsMinted.map(nft => <NFTPreview showDetails key={nft.id} nft={nft}/>)}
       </div>
     </div>
   </>
 })
 
+//@ts-ignore
 export const getServerSideProps: GetServerSideProps<AddressProps> = async (context) => {
   const {displayName} = context.query
   if (!displayName) {
     throw Error("No address")
   }
-
-  let account = null
-  let nftsMinted: any[] = []
-  let nftsOwned: any[] = []
-  // TODO: I need query param here for specific account
-  // account = await Http.get<Account>("/account")
-  // nftsMinted = await Http.get<Account>("/nft/minted")
-  // nftsOwned = await Http.get<Account>("/nft/owned")
-  return {props: {...await getNftsFromChain(displayName as string), account}}
-}
-
-// TODO: waiting on API
-const getNftsFromChain = async (address: string) => {
-  let nftsOwned: NFT[] = []
-  let nftsMinted: NFT[] = []
-
-  let committedNFTs: zkNFT[] = []
-  let committedMintedNFTs: zkNFT[] = []
-
-  try {
-    try {
-      const validAddress = ethers.utils.getAddress(address as string)
-      const syncProvider = await zksync.getDefaultProvider(vars.TARGET_NETWORK_NAME);
-      const state = await syncProvider.getState(validAddress)
-      committedNFTs = objectKeys(state.committed.nfts).map((key) => state.committed.nfts[key])
-      committedMintedNFTs = objectKeys(state.committed.mintedNfts).map(key => state.committed.mintedNfts[key])
-
-      nftsOwned = committedNFTs.map(nft => {
-
-        return {
-          address,
-          token_id: nft.id.toString(),
-          metadata: nftMetadata,
-          createdAt: new Date().toDateString(),
-          updatedAt: new Date().toDateString(),
-          id: "asdlfsssskj",
-          ownerId: "asldffffkfj",
-          minterId: "asdfasdfasdff"
-        }
-      })
-      nftsMinted = committedMintedNFTs.map(nft => ({
-        address,
-        token_id: nft.id.toString(),
-        metadata: nftMetadata,
-        createdAt: new Date().toDateString(),
-        updatedAt: new Date().toDateString(),
-        id: "asdfffas",
-        ownerId: "werwer",
-        minterId: "asdlfasdfasdfkj"
-      }))
-
-    } catch (e) {
-
-    }
-  } catch (e) {
-    console.error("debug:: error hit", e)
-  }
-
-  return {
-    nftsOwned,
-    nftsMinted
-  }
+  const { data: account } = await Http.get<Account>(`/account/${displayName}`)
+  const { data: nftsMinted } = await Http.get<Account>(`/nft/owner/${displayName}`)
+  const { data: nftsOwned } = await Http.get<Account>(`/nft/owner/${displayName}`)
+  return {props: {account, nftsMinted, nftsOwned}}
 }
 
 export default Profile
