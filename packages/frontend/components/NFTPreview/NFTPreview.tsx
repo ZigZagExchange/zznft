@@ -19,7 +19,7 @@ const NFTPreview = ({nft, showDetails = false}: NFTPreviewProps) => {
       className={css("break-all", "bg-neutral-800", "p-3", "text-sm", "hover:cursor-pointer", "hover:bg-neutral-900", "w-full", "h-full", "flex", "items-center", "justify-center", "overflow-hidden")}>
       <img src={metadata.image}/>
     </div>
-    {showDetails && <div className={css("flex", "justify-between", "mt-3")}>
+    {showDetails && <div className={css("flex", "justify-between", "mt-3", "text-neutral-400")}>
       <div>{metadata.name}</div>
       <div>{nft.tokenId}</div>
     </div>}

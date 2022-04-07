@@ -1,7 +1,6 @@
 import {useAccount, useConnect, useNetwork} from "wagmi";
 import React, {useEffect} from "react";
 import Button from "../Button/Button";
-import Link from "next/link";
 import {css} from "../../helpers/css";
 import {debugToast} from "../Toast/toast";
 import Dropdown from "../Dropdown/Dropdown";
