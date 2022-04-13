@@ -42,10 +42,10 @@ const MintSubmit = observer(({store}: {store: MintPageStore}) => {
         <div className={css("mt-4")}>
           <div
             className={css({"block": store.isNftUploadLoading, "hidden": !store.isNftUploadLoading})}>
-            sign tx to upload nft
+            sign txs (3) to upload nft
           </div>
           <div className={css({"block": store.isMetadataUploadLoading, "hidden": !store.isMetadataUploadLoading})}>
-            sign txs (3) to upload metadata
+            sign tx to upload metadata
           </div>
         </div>
       </div>}

@@ -24,7 +24,6 @@ const ConnectWallet = observer(() => {
   }, [isTargetChainConnected, isZkWalletConnected])
 
   return <>
-    {loading ? <div>loading</div> : null}
     {accountData && <WalletConnected/>}
     {!accountData && <Button onClick={() => AppStore.modals.isConnectWalletModalVisbile = true}>connect</Button>}
   </>

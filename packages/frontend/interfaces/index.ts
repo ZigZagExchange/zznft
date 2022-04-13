@@ -9,8 +9,7 @@ export interface NFT {
   ownerAddress: string;
   creatorAddress: string;
   zkContentHash: string;
-  // TODO: I don't think we need this
-  assetCid: string;
+  metadataCID: string;
 }
 
 export interface Account {
@@ -22,12 +21,22 @@ export interface Account {
   updatedAt: string;
 }
 
+export type Attributes = {trait_type: string, value: string}
+
 export interface Metadata {
   description: string;
   external_url?: string;
   image: string;
   name: string;
-  attributes: {trait_type: string, value: string}[]
+  attributes: Attributes[]
 }
 
 export type ErrorCodes = 400 | 404 | 500
+
+export interface Order {
+  id: number;
+  nftTokenId: number;
+  nonce: number;
+  // TODO: JSON or JSONB when we move to postgres
+  zkOrder: string
+}

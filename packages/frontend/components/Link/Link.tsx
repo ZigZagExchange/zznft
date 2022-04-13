@@ -6,7 +6,7 @@ import React from "react";
 interface LinkProps {
   isExternal?: boolean;
   href: string;
-  children: string;
+  children?: string;
   type?: LinkType;
   size?: LinkSize
 }
@@ -17,18 +17,18 @@ const Link: React.FC<LinkProps> = ({isExternal, href, children, type = LinkType.
   return <>
     {isExternal ? <a
       href={href}
-      className={css(styles, "flex", "items-center")}
+      className={css(styles, "inline-flex", "items-center")}
       target={isExternal ? "_blank" : "_self"}
       rel={"noreferrer"}
     >
-      {children}
+      {children && children}
       <span className={css("ml-2")}>
-        <CgExternal/>
+        <CgExternal size={size === LinkSize.sm ? "16px" : "18px"}/>
       </span>
     </a>
     : <NextLink href={href}>
         <a className={css(styles)}>
-          {children}
+          {children && children}
         </a>
       </NextLink>}
   </>

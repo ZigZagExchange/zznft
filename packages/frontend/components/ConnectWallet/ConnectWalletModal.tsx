@@ -7,6 +7,7 @@ import React from "react";
 import {useConnect} from "wagmi";
 import {AppStore} from "../../store/AppStore";
 import {observer} from "mobx-react";
+import Link, {LinkType} from "../Link/Link";
 
 interface ConnectWalletModalProps {
 
@@ -54,12 +55,14 @@ const ConnectWalletModal = observer(({}: ConnectWalletModalProps) => {
         <div className={css("text-center")}>
           New to Ethereum?
         </div>
-        <div className={css("text-center")}>
-          <a
-            target={"_blank"}
-            rel={"noreferrer"}
+        <div className={css("text-center", "mt-2")}>
+          <Link
+            type={LinkType.Grey}
+            isExternal
             href={"https://ethereum.org/en/wallets/find-wallet/"}
-            className={css("hover:underline", "hover:cursor-pointer", "hover:text-zz-150")}>Get a wallet</a>
+          >
+            Get a wallet
+          </Link>
         </div>
       </div>
     </div>

@@ -63,11 +63,11 @@ const Profile = observer(({nftsOwned, nftsMinted, address}: AddressProps) => {
     <div className={css("mt-8", "flex-grow-1")}>
       <div className={css("flex", "gap-10", "flex-wrap", "justify-center", "mt-24")}>
         {tab === Tabs.Collection && <>
-          {nftsOwned.length > 0 && nftsOwned.map(nft => <NFTPreview showDetails key={nft.id} nft={nft}/>)}
+          {nftsOwned.length > 0 && nftsOwned.map(nft => <NFTPreview square showDetails key={nft.id} nft={nft}/>)}
           {nftsOwned.length === 0 && <div className={css("text-neutral-400", "mt-32")}>no owned nfts found</div>}
         </>}
         {tab === Tabs.Creation && <>
-          {nftsMinted.length > 0 && nftsMinted.map(nft => <NFTPreview showDetails key={nft.id} nft={nft}/>)}
+          {nftsMinted.length > 0 && nftsMinted.map(nft => <NFTPreview square showDetails key={nft.id} nft={nft}/>)}
           {nftsMinted.length === 0 && <div className={css("text-neutral-400", "mt-32")}>no minted nfts found</div>}
         </>}
       </div>
