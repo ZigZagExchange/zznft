@@ -7,7 +7,11 @@ body {
     padding: 0;
     margin: 0;
     font-family: monospace;
-    height: 100vh;
+    min-height: 100%;
+}
+
+html {
+    overflow-x: hidden;
 }
 
 #__next {

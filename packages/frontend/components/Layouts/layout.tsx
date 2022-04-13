@@ -33,7 +33,7 @@ const Layout = ({children}: LayoutProps) => {
       />
       <title>zzNFT</title>
     </Head>
-    <main className={classNames("h-full", "flex", "flex-col", "font-mono", "text-white", "text-lg", "overflow-x-hidden")}>
+    <main className={classNames("h-full", "flex", "flex-col", "font-mono", "text-white", "text-lg")}>
       <div className={css("mb-5")}>
         <Header/>
       </div>
