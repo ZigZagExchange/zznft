@@ -20,7 +20,7 @@ interface LayoutProps {
 }
 
 const Layout = ({children}: LayoutProps) => {
-  return <div className={classNames("h-full", "p-3", "bg-black")}>
+  return <div className={classNames("p-3", "bg-black", "grow")}>
     <Head>
       <link rel={"icon"} href={"/favicon.ico"}/>
       <meta

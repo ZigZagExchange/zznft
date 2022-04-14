@@ -28,9 +28,9 @@ const Form: React.FC<FormProps> = ({children, onSubmit}) => {
         <form onSubmit={handleSubmit}>
           {children}
         </form>
-        <DevToggle>
-          {jsonify(values)}
-        </DevToggle>
+        {/*<DevToggle>*/}
+        {/*  {jsonify(values)}*/}
+        {/*</DevToggle>*/}
       </>}}
   />
 }

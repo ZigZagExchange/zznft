@@ -9,16 +9,17 @@ export interface SelectProps {
   value: string;
   onChange: (value: string) => void;
   defaultValue: string;
+  block?: boolean
 }
 
-const Select = ({items, value, onChange, defaultValue}: SelectProps) => {
+const Select = ({items, value, onChange, defaultValue, block = false}: SelectProps) => {
   return <div>
     <RadixSelect.Root
       onValueChange={(value) => onChange(value)}
       value={value}
       defaultValue={defaultValue}
     >
-      <RadixSelect.Trigger className={css("hover:bg-neutral-800", "bg-neutral-900", "inline-flex", "items-center", "px-2", "py-1")}>
+      <RadixSelect.Trigger className={css("hover:bg-neutral-800", "bg-neutral-900", "inline-flex", "items-center", "justify-between", "px-2", "py-1", {"w-full": block})}>
         <RadixSelect.Value/>
         <RadixSelect.Icon className={css("ml-2")}>
           <BiChevronDown/>

@@ -2,6 +2,7 @@ import React from "react";
 import classNames, {Argument} from "classnames";
 import {css} from "../../helpers/css";
 import {useFormState} from "react-final-form";
+import Spinner, {SpinnerSize} from "../Spinner/Spinner";
 
 export enum ButtonType {
   Primary = 'primary',
@@ -14,7 +15,7 @@ export enum ButtonSize {
   lg = 'lg'
 }
 
-const baseButtonStyles = css("disabled:cursor-not-allowed", "font-mono")
+const baseButtonStyles = css("disabled:cursor-not-allowed", "font-mono", "relative")
 const buttonHoverStyle = css("hover:bg-gradient-to-r", "from-zz-50", "via-zz-100", "to-zz-150", "disabled:hover:bg-neutral-100")
 
 const buttonVariantStyles = {
@@ -35,7 +36,8 @@ interface ButtonProps {
   block?: boolean,
   className?: Argument;
   disabled?: boolean;
-  isSubmit?: boolean
+  isSubmit?: boolean;
+  isLoading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -46,7 +48,8 @@ const Button: React.FC<ButtonProps> = ({
                                          block,
                                          className,
                                          disabled,
-                                         isSubmit
+                                         isSubmit,
+                                         isLoading
                                        }) => {
   return <button
     disabled={disabled}
@@ -55,6 +58,11 @@ const Button: React.FC<ButtonProps> = ({
     className={css(buttonVariantStyles[type], buttonSizeStyles[size], {"w-full": block, [buttonHoverStyle]: !disabled}, className)}
   >
     {children}
+    {isLoading && <div
+      className={css("w-full", "h-full", "absolute", "flex", "items-center", "justify-center", "bg-neutral-800")}
+      style={{left: 0, top: 0}}>
+      <Spinner size={SpinnerSize.sm}/>
+    </div>}
   </button>
 }
 
@@ -66,7 +74,7 @@ interface SubmitProps extends ButtonProps{
 
 export const Submit: React.FC<SubmitProps> = ({label, disabled, ...rest}) => {
   const {submitting} = useFormState()
-  return <Button isSubmit disabled={submitting || disabled} {...rest}>{label ? label : "Submit"}</Button>
+  return <Button isSubmit isLoading={submitting} disabled={submitting || disabled} {...rest}>{label ? label : "Submit"}</Button>
 }
 
 export default Button

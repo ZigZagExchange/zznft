@@ -1,7 +1,7 @@
 import Select, {SelectProps} from "../Select/Select";
 import FormInput, {BaseInputProps} from "./FormInput";
 
-interface SelectInputProps extends BaseInputProps, Pick<SelectProps, 'items' | 'defaultValue'> {}
+interface SelectInputProps extends BaseInputProps, Pick<SelectProps, 'items' | 'defaultValue' | 'block'> {}
 
 const SelectInput = (props: SelectInputProps) => {
   // TODO: separate out from general form input component

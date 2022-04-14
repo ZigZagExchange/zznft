@@ -14,6 +14,8 @@ import {useMemo, useState} from "react";
 import TextInput from "../../components/Form/TextInput";
 import {observer} from "mobx-react";
 import NftDetailStore from "../../store/NftDetail.store";
+import {AppStore} from "../../store/AppStore";
+import ConnectWallet from "../../components/ConnectWallet/ConnectWallet";
 
 interface NFTProps {
   nft: NFT;
@@ -24,9 +26,6 @@ const NonFungible = observer(({nft, order}: NFTProps) => {
   const {displayName: ownerName} = useDisplayName(nft.ownerAddress)
   const {displayName: creatorName} = useDisplayName(nft.creatorAddress)
   const store = useMemo(() => new NftDetailStore(nft), [])
-
-  const [currencySelect, setCurrencySelect] = useState("ETH")
-  const [amount, setAmount] = useState("0")
 
   return <>
     {store.metadata && <div className={css("mt-5", "px-24")}>
@@ -45,24 +44,33 @@ const NonFungible = observer(({nft, order}: NFTProps) => {
           <div className={css("col-span-2", "gap-5")}>
             <div>
               <Pane title={"List For Sale"} className={css("mb-5")}>
-                <Form onSubmit={async () => alert("list")}>
+                <Form onSubmit={() => store.onListSubmit()}>
                   <div className={css("grid", "grid-cols-2")}>
-                    <SelectInput
-                      label={"Currency"}
-                      name={"currency"}
-                      value={currencySelect}
-                      onChange={(val) => setCurrencySelect(val)}
-                      items={[{name: "ETH", id: "ETH"}, {name: "USDC", id: "USDC"}]}
-                      defaultValue={currencySelect}
-                    />
-                    <TextInput
-                      label={"Amount"}
-                      name={"amount"}
-                      value={amount}
-                      onChange={(amount) => setAmount(amount)}
-                    />
+                    <div className={css("mr-4")}>
+                      <SelectInput
+                        block
+                        label={"Currency"}
+                        name={"currency"}
+                        value={store.listCurrency}
+                        onChange={(val) => store.listCurrency = val}
+                        items={store.currencySelectItems}
+                        defaultValue={store.listCurrency}
+                      />
+                    </div>
+                    <div className={css("ml-4")}>
+                      <TextInput
+                        block
+                        label={"Amount"}
+                        name={"amount"}
+                        value={store.listAmount}
+                        onChange={(amount) => store.listAmount = amount}
+                      />
+                    </div>
                   </div>
-                  <Submit label={"List"} block className={css("mt-6")}/>
+                  <div className={css("mt-6")}>
+                    {AppStore.auth.isAuthed && <Submit label={"List"} block/>}
+                    {!AppStore.auth.isAuthed && <ConnectWallet/>}
+                  </div>
                 </Form>
               </Pane>
               <Pane title={"Attributes"}>

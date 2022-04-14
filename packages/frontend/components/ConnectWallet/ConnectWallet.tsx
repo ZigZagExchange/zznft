@@ -11,6 +11,8 @@ import useNetworkWatcher from "../../hooks/useNetworkWatcher";
 import useZkWalletConnector from "../../hooks/useZkWalletMobxSync";
 import DSLLink, {LinkSize, LinkType} from "../Link/Link"
 
+
+// TODO: break up this functionality so we can plug connect wallet button elsewhere, without the rest of this functionality
 const ConnectWallet = observer(() => {
   const [{data: accountData}] = useAccount()
   const [{loading}] = useConnect()
